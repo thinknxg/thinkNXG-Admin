@@ -172,3 +172,63 @@ class TestPhase7Permissions(IntegrationTestCase):
 		frappe.set_user("Guest")
 		with self.assertRaises(frappe.AuthenticationError):
 			notifications.list_notifications()
+
+
+class TestPhase8(IntegrationTestCase):
+	"""Configuration is System Manager only and allow-listed; reports and My Workspace are per user."""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def test_configuration_denied_to_plain_user(self):
+		from thinknxg_admin.api import configuration
+
+		frappe.set_user(PLAIN_USER)
+		for fn in (configuration.get_configuration, lambda: configuration.save_configuration({"app_name": "x"}),
+				lambda: configuration.save_log_retention([]), lambda: configuration.save_branding("x")):
+			with self.assertRaises(frappe.PermissionError):
+				fn()
+
+	def test_configuration_refuses_unlisted_fields(self):
+		from thinknxg_admin.api import configuration
+
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.ValidationError):
+			configuration.save_configuration({"enable_mcp": 1})
+
+	def test_configuration_groups_only_existing_fields(self):
+		from thinknxg_admin.api import configuration
+
+		frappe.set_user("Administrator")
+		meta = frappe.get_meta("System Settings")
+		for g in configuration.get_configuration()["groups"]:
+			for f in g["fields"]:
+				self.assertTrue(meta.has_field(f["fieldname"]))
+				self.assertIn(f["fieldname"], configuration.ALLOWED)
+
+	def test_reports_and_workspace_for_plain_user(self):
+		from thinknxg_admin.api import my_workspace, reports
+
+		frappe.set_user(PLAIN_USER)
+		cat = reports.get_catalog()
+		self.assertFalse(cat["is_admin"])
+		ws = my_workspace.get_my_workspace()
+		self.assertEqual(ws["user"]["name"], PLAIN_USER)
+		self.assertTrue(all(t.get("name") for t in ws["todos"]))
+
+	def test_preferences_limited_to_own_fields(self):
+		from thinknxg_admin.api import my_workspace
+
+		frappe.set_user(PLAIN_USER)
+		before = frappe.db.get_value("User", PLAIN_USER, "user_type")
+		my_workspace.update_my_preferences({"time_zone": "Asia/Muscat", "user_type": "Website User", "roles": ["System Manager"]})
+		self.assertEqual(frappe.db.get_value("User", PLAIN_USER, "user_type"), before)
+		self.assertNotIn("System Manager", frappe.get_roles(PLAIN_USER))
+
+	def test_guest_denied(self):
+		from thinknxg_admin.api import my_workspace, reports
+
+		frappe.set_user("Guest")
+		for fn in (reports.get_catalog, my_workspace.get_my_workspace):
+			with self.assertRaises(frappe.AuthenticationError):
+				fn()

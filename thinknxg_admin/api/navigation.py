@@ -22,7 +22,7 @@ NAVIGATION = [
 			{"key": "notifications", "label": "Notifications", "icon": "bell", "route": "/notifications", "status": "live"},
 			{
 				"key": "my-workspace", "label": "My Workspace", "icon": "user-round", "route": "/my-workspace",
-				"desk": "/desk", "status": "planned", "phase": 8,
+				"desk": "/desk", "status": "live",
 				"description": "Your role-based landing page with shortcuts, tasks and approvals.",
 				"capabilities": ["Personal landing page per role", "Pinned shortcuts and favourites", "Assigned tasks and approvals"],
 			},
@@ -78,7 +78,7 @@ NAVIGATION = [
 		"items": [
 			{
 				"key": "configuration", "label": "Configuration", "icon": "sliders-horizontal", "route": "/configuration",
-				"doctype": "System Settings", "admin": True, "status": "planned", "phase": 8, "desk": "/desk/system-settings",
+				"doctype": "System Settings", "admin": True, "status": "live", "desk": "/desk/system-settings",
 				"description": "General, security, email and system settings in one place.",
 				"capabilities": ["General, regional and branding settings", "Security: password policy, sessions, 2FA", "Email accounts and templates"],
 			},
@@ -96,7 +96,7 @@ NAVIGATION = [
 			},
 			{
 				"key": "reports", "label": "Reports", "icon": "chart-column", "route": "/reports", "doctype": "Report",
-				"status": "planned", "phase": 8, "desk": "/desk/report",
+				"status": "live", "desk": "/desk/report",
 				"description": "Report catalogue, saved filters and dashboards.",
 				"capabilities": ["Report catalogue by module", "Saved filters and favourites", "Dashboards"],
 			},
