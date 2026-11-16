@@ -19,6 +19,9 @@ const routes: RouteRecordRaw[] = [
 	{ path: "/automation", component: () => import("@/pages/AutomationPage.vue"), meta: { admin: true, title: "Automation" } },
 	{ path: "/audit", component: () => import("@/pages/AuditPage.vue"), meta: { admin: true, title: "Audit & Compliance" } },
 	{ path: "/developer", component: () => import("@/pages/DeveloperPage.vue"), meta: { admin: true, title: "Developer Tools" } },
+	{ path: "/my-workspace", component: () => import("@/pages/MyWorkspacePage.vue"), meta: { title: "My Workspace" } },
+	{ path: "/configuration", component: () => import("@/pages/ConfigurationPage.vue"), meta: { admin: true, title: "System Configuration" } },
+	{ path: "/reports", component: () => import("@/pages/ReportsPage.vue"), meta: { title: "Reports & Analytics" } },
 	// Every other registry route is resolved at runtime against the server-filtered navigation.
 	{ path: "/:pathMatch(.*)*", name: "dynamic", component: () => import("@/pages/Planned.vue") },
 ];
@@ -30,8 +33,8 @@ router.beforeEach((to) => {
 	if (!data) return true;
 	// UX guard only - the server refuses the data anyway (require_admin).
 	if (to.meta.admin && !data.user.is_admin) {
-		const first = allNavItems().find((i) => !i.route.startsWith("/system") && i.route !== "/");
-		return first ? first.route : { name: "dynamic", params: { pathMatch: ["not-found"] } };
+		// Everyone has My Workspace; it is the landing page for non-admins.
+		return allNavItems().some((i) => i.route === "/my-workspace") ? "/my-workspace" : "/notifications";
 	}
 	if (to.name === "dynamic" && !allNavItems().some((i) => i.route === to.path)) {
 		return true; // Planned.vue shows "not available" when the route isn't in the user's navigation
