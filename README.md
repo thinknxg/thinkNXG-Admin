@@ -3,7 +3,7 @@
 Premium administration shell for **thinkNXG Core**, **thinkNXG ERP** and **thinkNXG HR** (V16).
 It opens at **`/thinknxg`**, next to the classic Desk at `/desk`, which it leaves untouched.
 
-Release 16.1: application shell, Admin Command Center and System Health (Phases 4–5), plus Users & Access, Roles & Permissions, Organization, Workspaces and Apps & Modules (Phase 6).
+Release 16.2: application shell, Command Center and System Health (Phases 4–5); Users & Access, Roles & Permissions, Organization, Workspaces and Apps & Modules (Phase 6); Integrations, Automation, Audit & Compliance, Developer Tools and the Notification Center (Phase 7).
 
 ## Install
 
@@ -35,6 +35,11 @@ shows "Not available" when that app is not installed.
 | Organization | Company cards with employee, department, cost-center and warehouse counts; collapsible department hierarchy with head counts; branches; designations; fiscal years; regional settings; follows the company selector |
 | Workspaces | Workspace pages (roles, hidden, reorder), visual Sidebar builder for each module's site-wide layer (drag or keyboard reorder, rename, hide, nest, add links and section headings, reset) through Core's Custom Sidebar endpoints, Desktop icons (show/hide, roles) |
 | Apps & Modules | Installed apps with version and branch, modules with DocType counts and visibility, Module Profiles editor; explains install vs visibility vs role access vs launcher |
+| Integrations | Webhooks with 7-day delivery health and enable switch, delivery log per webhook (errors only filter); email accounts with sent / error / pending counts and queue status; OAuth clients with active tokens, connected apps with connected users, social sign-in providers (enable switch); users holding API keys with last logged request; webhook delivery and Integration Request logs. Secrets, header values and URL query strings are never returned |
+| Automation | Workflows (activate; open actions), Notifications, Assignment Rules, Scheduled Jobs (7-day runs and failures, run now, stop/start, run log), Server Scripts (no script bodies; warns when server scripts are disabled for the bench), Auto Repeat, Document Naming Rules, Milestone Trackers; scheduler status. Every switch saves through the document so its validation runs |
+| Audit & Compliance | One timeline over Activity Log, Permission Log, Version, Access Log and API Request Log: categories (sign-ins, permissions, users & roles, configuration, data exports, documents, API), actor / result / date / text filters (saved per browser), expandable before → after values, summary tiles, most-failed users and IPs, CSV export (needs export permission on Activity Log; the export itself is written to the Access Log) |
+| Developer Tools | Overview (apps and versions, DocType and customisation counts, developer mode, server-script flag), DocType explorer with field / permission / customisation detail, custom fields / property setters / client and server scripts lists, Error Log reader (mark seen), background jobs by state (stop running jobs, clear failed). System Manager only; nothing executes code |
+| Notification Center | `/thinknxg/notifications` for every desk user: type filters with unread counts, unread-only switch, day grouping, mark read / mark all read through Core, open the related document, personal notification and email settings |
 | Not built yet | Every other menu item opens a clearly labelled "Planned · Phase N" page with a working link to the same screen in Desk |
 
 Keyboard: `Ctrl/⌘ K` palette · `/` search · `G` `C` Command Center · `G` `H` Health · `G` `U` Users · `[` sidebar · `?` help.
@@ -90,9 +95,10 @@ Stack: Vue 3 + TypeScript + frappe-ui 1.2 + Tailwind 3 (frappe-ui preset + think
 bench --site <test-site> run-tests --app thinknxg_admin
 ```
 
-Covers: every dashboard and Phase 6 endpoint allowed for admins and refused for plain users and
+Covers: every dashboard, Phase 6 and Phase 7 endpoint allowed for admins and refused for plain users and
 Guests, navigation filtering, KPI count matches a direct query, missing DocType returns `None`,
-the last System Manager guard.
+the last System Manager guard, secrets never present in integration payloads, URL credential
+stripping, notifications scoped to their owner.
 
 ## License
 

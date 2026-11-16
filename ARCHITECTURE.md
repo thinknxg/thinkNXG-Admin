@@ -1,4 +1,4 @@
-# Architecture notes (Phases 4–6)
+# Architecture notes (Phases 4–7)
 
 Full audit and plan: "thinkNXG Admin Command Center — Audit & Architecture" (Claude doc).
 
@@ -30,3 +30,19 @@ Full audit and plan: "thinkNXG Admin Command Center — Audit & Architecture" (C
 - **Own table and form components** in thinkNXG styling (DataTable, Drawer, Dialog, MultiSelect).
   `@framework/ui` ListView/Filter stay available through `vite.config.ts` for later adoption; they
   were not used here so the build does not depend on a bench checkout of Core's UI source.
+
+## Phase 7 decisions
+
+- **Audit reuses Core's records only**: Activity Log, Permission Log (`{"from", "to"}` diffs), Version,
+  Access Log and API Request Log are merged at read time; nothing is logged twice. The default feed
+  covers administration; business-document history is a separate "Documents" category because of volume.
+  Paging merges at most 2,000 events per query window.
+- **Integrations never select secret columns** (webhook secret/headers, OAuth and connected-app secrets,
+  tokens, email passwords, API secrets). Endpoint URLs are reduced to scheme, host, port and path.
+- **Automation switches** go through each document's save (e.g. Core deactivates other workflows for the
+  same DocType). "Run now" uses `Scheduled Job Type.enqueue(force=True)`, the same as Desk's Execute.
+- **Developer Tools are read-only**: no console, no script bodies, no site config values. The only writes are
+  marking Error Logs seen and Core's own RQ `stop_job` / `remove_failed_jobs`.
+- **Notifications** read `Notification Log` for the session user only; `type` is a Link to
+  `Notification Type` in this Core release, so type filters are discovered from the data.
+- Configuration, Reports and My Workspace remain labelled "Planned · Phase 8".
