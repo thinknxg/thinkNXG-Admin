@@ -144,7 +144,7 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 						<span v-if="!n.read" class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-nxg-red" aria-label="Unread" />
 					</button>
 				</div>
-				<div class="mt-1 border-t border-nxg-border pt-1"><MenuItem label="Open all notifications" href="/desk/notification-log" icon="inbox" /></div>
+				<div class="mt-1 border-t border-nxg-border pt-1"><MenuItem label="Open Notification Center" href="/thinknxg/notifications" icon="inbox" /></div>
 			</NxgMenu>
 
 			<a :href="b.brand.docs_url" target="_blank" rel="noopener" class="nxg-icon-btn hidden sm:inline-flex" aria-label="Help and documentation" title="Help"><Icon name="circle-help" :size="17" /></a>
