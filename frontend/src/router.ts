@@ -22,7 +22,8 @@ const routes: RouteRecordRaw[] = [
 	{ path: "/my-workspace", component: () => import("@/pages/MyWorkspacePage.vue"), meta: { title: "My Workspace" } },
 	{ path: "/configuration", component: () => import("@/pages/ConfigurationPage.vue"), meta: { admin: true, title: "System Configuration" } },
 	{ path: "/reports", component: () => import("@/pages/ReportsPage.vue"), meta: { title: "Reports & Analytics" } },
-	{ path: "/erp", component: () => import("@/pages/CenterHome.vue"), props: { centerKey: "erp" }, meta: { center: "erp", title: "ERP Command Center" } },
+	{ path: "/erp", component: () => import("@/pages/erp/ErpCommandCenter.vue"), meta: { center: "erp", title: "ERP Command Center" } },
+	{ path: "/erp/approvals", component: () => import("@/pages/erp/ErpApprovals.vue"), meta: { center: "erp", title: "Approvals" } },
 	{ path: "/hr", component: () => import("@/pages/CenterHome.vue"), props: { centerKey: "hr" }, meta: { center: "hr", title: "HR Command Center" } },
 	// Every other registry route is resolved at runtime against the server-filtered navigation.
 	{ path: "/:pathMatch(.*)*", name: "dynamic", component: () => import("@/pages/Planned.vue") },

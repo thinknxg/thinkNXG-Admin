@@ -17,15 +17,18 @@ onMounted(() => {
 });
 onBeforeUnmount(() => ro?.disconnect());
 
-const pad = { l: 32, r: 8, t: 10, b: 22 };
+const compact = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
+const tickText = (v: number) => (Math.abs(v) >= 10000 ? compact.format(v) : new Intl.NumberFormat().format(v));
 const max = computed(() => {
 	const m = Math.max(1, ...props.points.map((p) => Number(p[props.valueKey]) || 0));
 	const step = m <= 5 ? 1 : Math.pow(10, Math.floor(Math.log10(m)));
 	return Math.ceil(m / step) * step;
 });
 const ticks = computed(() => [0, max.value / 2, max.value].map((v) => Math.round(v)));
-const X = (i: number) => pad.l + (props.points.length <= 1 ? 0 : (i * (width.value - pad.l - pad.r)) / (props.points.length - 1));
-const Y = (v: number) => pad.t + (1 - v / max.value) * (props.height - pad.t - pad.b);
+// Left padding fits the widest tick label, so large values are never clipped.
+const pad = computed(() => ({ l: Math.max(28, 12 + 6.6 * Math.max(...ticks.value.map((t) => tickText(t).length))), r: 8, t: 10, b: 22 }));
+const X = (i: number) => pad.value.l + (props.points.length <= 1 ? 0 : (i * (width.value - pad.value.l - pad.value.r)) / (props.points.length - 1));
+const Y = (v: number) => pad.value.t + (1 - v / max.value) * (props.height - pad.value.t - pad.value.b);
 const line = computed(() => props.points.map((p, i) => `${i ? "L" : "M"}${X(i).toFixed(1)} ${Y(Number(p[props.valueKey]) || 0).toFixed(1)}`).join(""));
 const area = computed(() => (props.points.length ? `${line.value}L${X(props.points.length - 1)} ${Y(0)}L${X(0)} ${Y(0)}Z` : ""));
 const labels = computed(() => {
@@ -45,7 +48,7 @@ function onMove(e: MouseEvent) {
 	const x = e.clientX - rect.left;
 	const n = props.points.length;
 	if (n < 1) return;
-	const i = Math.round(((x - pad.l) / (width.value - pad.l - pad.r)) * (n - 1));
+	const i = Math.round(((x - pad.value.l) / (width.value - pad.value.l - pad.value.r)) * (n - 1));
 	hover.value = Math.max(0, Math.min(n - 1, i));
 }
 const tip = computed(() => (hover.value === null ? null : props.points[hover.value]));
@@ -56,7 +59,7 @@ const tip = computed(() => (hover.value === null ? null : props.points[hover.val
 		<svg :width="width" :height="height" role="img" :aria-label="`${valueLabel} per day`" @mousemove="onMove" @mouseleave="hover = null">
 			<g>
 				<line v-for="t in ticks" :key="t" :x1="pad.l" :x2="width - pad.r" :y1="Y(t)" :y2="Y(t)" stroke="var(--nxg-chart-grid)" />
-				<text v-for="t in ticks" :key="'l' + t" :x="pad.l - 8" :y="Y(t) + 4" text-anchor="end" class="nxg-tnum fill-[var(--nxg-text-3)] text-[11px]">{{ t }}</text>
+				<text v-for="t in ticks" :key="'l' + t" :x="pad.l - 8" :y="Y(t) + 4" text-anchor="end" class="nxg-tnum fill-[var(--nxg-text-3)] text-[11px]">{{ tickText(t) }}</text>
 				<text v-for="l in labels" :key="'x' + l.i" :x="X(l.i)" :y="height - 6" :text-anchor="l.i === 0 ? 'start' : l.i === points.length - 1 ? 'end' : 'middle'" class="fill-[var(--nxg-text-3)] text-[11px]">{{ l.text }}</text>
 			</g>
 			<path :d="area" fill="var(--nxg-chart-1-soft)" />

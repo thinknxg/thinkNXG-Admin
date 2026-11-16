@@ -55,7 +55,7 @@ const responses: Record<string, (args: any) => any> = {
 				navigation: [
 					{ section: "Overview", items: [{ key: "erp-home", label: "ERP Command Center", icon: "layout-dashboard", route: "/erp", status: "live" }, nav[0].items[2], nav[0].items[1]] },
 					{ section: "Operations", items: [["accounting", "Accounting", "landmark"], ["selling", "Selling", "shopping-cart"], ["buying", "Buying", "shopping-bag"], ["stock", "Stock", "package"], ["manufacturing", "Manufacturing", "factory"], ["crm", "CRM", "handshake"], ["projects", "Projects", "folder-kanban"], ["assets", "Assets", "box"], ["quality", "Quality", "badge-check"]].map(([k, l, i]) => ({ key: "erp-" + k, label: l, icon: i, route: "/desk/" + k, href: "/desk/" + k, status: "desk" })) },
-					{ section: "Insights", items: [{ key: "reports", label: "Reports", icon: "chart-column", route: "/reports", status: "live" }, { key: "erp-transactions", label: "Transactions", icon: "arrow-left-right", route: "/desk/sales-invoice", href: "/desk/sales-invoice", status: "desk" }, { key: "erp-approvals", label: "Approvals", icon: "stamp", route: "/erp/approvals", status: "planned", phase: "B", desk: "/desk/workflow-action", description: "Every ERP document waiting for your approval, with Approve and Reject.", capabilities: ["Workflow approvals assigned to you", "Approve or reject with confirmation"] }] },
+					{ section: "Insights", items: [{ key: "reports", label: "Reports", icon: "chart-column", route: "/reports", status: "live" }, { key: "erp-transactions", label: "Transactions", icon: "arrow-left-right", route: "/desk/sales-invoice", href: "/desk/sales-invoice", status: "desk" }, { key: "erp-approvals", label: "Approvals", icon: "stamp", route: "/erp/approvals", status: "live" }] },
 				],
 				quick_create: [["Sales Invoice", "receipt"], ["Sales Order", "shopping-cart"], ["Purchase Order", "shopping-bag"], ["Payment Entry", "banknote"], ["Journal Entry", "book-open"], ["Stock Entry", "package"], ["Customer", "user-round"], ["Lead", "user-plus"]].map(([d, i]) => ({ doctype: d, icon: i, route: "/desk/" + d.toLowerCase().replace(/ /g, "-") + "/new", center: "erp" })) },
 			{ key: "hr", label: "HR Command Center", short: "HR", icon: "users-round", description: "Workforce, attendance, leave and people operations", route: "/hr", title: "Welcome to thinkNXG HR Command Center", subtitle: "Your intelligent workforce management and people operations command center.", docs_url: "https://docs.thinknxg.com/thinknxghr", filters: ["company", "department", "branch", "date_range"], access: "limited",
@@ -87,6 +87,41 @@ const responses: Record<string, (args: any) => any> = {
 		fiscal_years: a.center === "erp" ? [{ name: "2026" }, { name: "2025" }] : null,
 	}),
 	"thinknxg_admin.api.centers.save_preferences": () => ({ default_center: null, last_center: null, state: {} }),
+	"thinknxg_admin.api.erp.get_kpis": (a) => ({
+		_context: { company: a.company || "Sample Trading LLC", currency: "OMR", start: local(new Date(now - (Number(a.days || 30) - 1) * 86400000)).slice(0, 10), end: local(new Date()).slice(0, 10) },
+		total_revenue: { value: 184250.4, delta: 6.2, currency: "OMR", route: "/desk/query-report/Profit and Loss Statement" },
+		gross_profit: { value: 52310.1, delta: -2.4, secondary: 28.4, currency: "OMR" },
+		receivables: { value: 96120.75, currency: "OMR" },
+		payables: { value: 41870.2, currency: "OMR" },
+		cash_bank: { value: 128400, currency: "OMR", secondary: 4 },
+		sales_orders: { value: 37, amount: 61240, currency: "OMR", new: 22, delta: 10 },
+		purchase_orders: { value: 19, amount: 28890, currency: "OMR", new: 11, delta: -8.3 },
+		inventory_valuation: { restricted: true },
+		outstanding_invoices: { value: 54, secondary: 12 },
+		pending_approvals: { value: 3 },
+	}),
+	"thinknxg_admin.api.erp.get_pending": () => ({ company: "Sample Trading LLC", items: [
+		{ key: "approvals", label: "Approvals waiting for you", icon: "stamp", value: 3, route: "/thinknxg/erp/approvals" },
+		{ key: "overdue", label: "Overdue sales invoices", icon: "receipt", value: 12, route: "/desk/sales-invoice" },
+		{ key: "mr_to_order", label: "Material requests waiting for a purchase order", icon: "clipboard-list", value: 5, route: "/desk/material-request" },
+		{ key: "so_to_bill", label: "Sales orders to bill", icon: "shopping-cart", value: 9, route: "/desk/sales-order" },
+	] }),
+	"thinknxg_admin.api.erp.get_section": (a) => {
+		const n = Number(a.days || 30);
+		const trend = Array.from({ length: n }, (_, i) => ({ date: local(new Date(now - (n - 1 - i) * 86400000)).slice(0, 10), value: [5, 6].includes(new Date(now - (n - 1 - i) * 86400000).getDay()) ? 900 + (i % 3) * 120 : 5200 + Math.round(1400 * Math.sin(i / 2.7)) + (i % 4) * 230 }));
+		const bars = (labels: string[], top: number) => labels.map((l, i) => ({ label: l, value: Math.round(top / (1 + i * 0.55)) }));
+		switch (a.section) {
+			case "sales": return { currency: "OMR", trend, total: trend.reduce((s, p) => s + p.value, 0), top_customers: bars(["Al Noor Contracting", "Gulf Star Trading", "Muscat Hospitality", "Sohar Logistics", "Blue Wave Retail"], 38200), funnel: { stages: [{ label: "Quotations", value: 64 }, { label: "Sales orders", value: 41 }, { label: "Sales invoices", value: 36 }] } };
+			case "finance": return { currency: "OMR", receivable_ageing: [{ label: "Not due", value: 52100 }, { label: "1-30 days", value: 24800 }, { label: "31-60 days", value: 11200 }, { label: "61-90 days", value: 4900 }, { label: "Over 90 days", value: 3120 }], payable_ageing: { restricted: true }, cash_trend: trend.map((p, i) => ({ date: p.date, value: 110000 + i * 620 + Math.round(4000 * Math.sin(i / 3)) })), overdue_invoices: [{ name: "ACC-SINV-2026-00412", customer_name: "Sohar Logistics", due_date: "2026-08-02", days: 106, outstanding_amount: 3120, currency: "OMR", route: "#" }, { name: "ACC-SINV-2026-00588", customer_name: "Blue Wave Retail", due_date: "2026-09-21", days: 56, outstanding_amount: 2480.5, currency: "OMR", route: "#" }] };
+			case "inventory": return { currency: "OMR", by_warehouse: bars(["Stores - STL", "Finished Goods - STL", "Work In Progress - STL"], 210000), below_reorder: { count: 2, items: [{ item: "PIPE-PVC-110", warehouse: "Stores - STL", projected: 14, reorder_level: 40, route: "#" }, { item: "VALVE-BALL-2IN", warehouse: "Stores - STL", projected: 6, reorder_level: 10, route: "#" }] } };
+			default: return { restricted: true };
+		}
+	},
+	"thinknxg_admin.api.erp.get_approvals": () => ({ items: [
+		{ doctype: "Purchase Order", name: "PUR-ORD-2026-00191", title: "Gulf Steel Supplies", state: "Pending Finance", creation: ago(95), company: "Sample Trading LLC", amount: 12480, currency: "OMR", owner: "Rahul Menon", route: "#", actions: ["Approve", "Reject"] },
+		{ doctype: "Sales Order", name: "SAL-ORD-2026-00733", title: "Al Noor Contracting", state: "Pending Manager", creation: ago(320), company: "Sample Trading LLC", amount: 8760.5, currency: "OMR", owner: "Noor Al Balushi", route: "#", actions: ["Approve", "Send Back", "Reject"] },
+		{ doctype: "Material Request", name: "MAT-MR-2026-00088", title: "Site 4 consumables", state: "Pending Approval", creation: ago(1440), company: "Sample Trading LLC", amount: null, currency: null, owner: "Fatma Al Hinai", route: "#", actions: ["Approve", "Reject"] },
+	] }),
 	"thinknxg_admin.api.dashboard.get_kpis": (a) => ({
 		total_users: { value: 148, secondary: 6, delta: 50 },
 		active_users: { value: 97, delta: 8.9 },

@@ -87,3 +87,25 @@ Architecture & ERP/HR Blueprint" (approved 16 Nov 2026).
   My Workspace. It applies only when `/thinknxg` itself is opened.
 - `admin_roles()` now filters by `parentfield`, because Admin Settings has several role tables.
 - ERP and HR homes show no figures yet; KPIs and sections land in Phases B–E.
+
+## Unified command centers — Phase B (ERP figures and approvals)
+
+- **Every ERP figure goes through `frappe.qb.get_query(..., ignore_permissions=False)`**, the core
+  query builder with permissions on. Role permissions and User Permissions (company, warehouse,
+  customer…) narrow every count and SUM; nothing bypasses them. Account and Warehouse *names* are
+  read without permission checks only to pick which rows to sum — they carry no balances.
+- **Withheld, not zero**: a figure whose source the user cannot read returns `{"restricted": true}`
+  and no number; a source that is not installed returns `value: null` ("Not available").
+- **Sources**: revenue and gross profit from GL Entry (Income minus Cost of Goods Sold accounts),
+  cash/bank from GL balances, receivables/payables and ageing from Payment Ledger Entry (`amount` is in
+  company currency, positive for outstanding on both sides), inventory from Bin `stock_value` in the
+  company's warehouses, orders and invoices from submitted documents.
+- **A company is always resolved** (the chosen one, else the user's default, else the first they may
+  see), because money is only summed in one currency. Fiscal years and branches are re-validated on
+  the server; the branch filter needs Branch as an active Accounting Dimension.
+- **Approvals use the core workflow engine.** `apply_approval` checks the ERP center, that the DocType
+  belongs to thinkNXG ERP, read access and company, then calls `frappe.model.workflow.apply_workflow`,
+  which enforces the transition's role, condition, self-approval and write/submit permission and
+  records the action in the document's history. The list shows only documents the user can read and
+  only transitions `get_transitions` offers them.
+- Panels are cached for the settings TTL per user and filter set; an approval clears the cache.

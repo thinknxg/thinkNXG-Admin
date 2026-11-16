@@ -67,12 +67,7 @@ ERP_NAVIGATION = [
 	{"section": "Insights", "items": [
 		REPORTS,
 		_desk("erp-transactions", "Transactions", "arrow-left-right", "/desk/sales-invoice", "Sales Invoice"),
-		{
-			"key": "erp-approvals", "label": "Approvals", "icon": "stamp", "route": "/erp/approvals", "status": "planned", "phase": "B",
-			"desk": "/desk/workflow-action",
-			"description": "Every ERP document waiting for your approval, with Approve and Reject.",
-			"capabilities": ["Workflow approvals assigned to you", "Approve or reject with confirmation", "Every action recorded in the document's history"],
-		},
+		{"key": "erp-approvals", "label": "Approvals", "icon": "stamp", "route": "/erp/approvals", "status": "live"},
 	]},
 ]
 

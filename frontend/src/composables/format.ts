@@ -3,6 +3,13 @@ export function fmtNumber(n: number | null | undefined) {
 	return new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(n);
 }
 
+/** Money in the company's currency. Compact (12.4K) for tiles, full for tables. */
+export function fmtMoney(n: number | null | undefined, currency?: string | null, compact = false) {
+	if (n === null || n === undefined) return "—";
+	const num = new Intl.NumberFormat(undefined, compact ? { notation: "compact", maximumFractionDigits: 1 } : { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n);
+	return currency ? `${currency} ${num}` : num;
+}
+
 export function fmtBytes(b: number | null | undefined) {
 	if (b === null || b === undefined) return "—";
 	const u = ["B", "KB", "MB", "GB", "TB"];
