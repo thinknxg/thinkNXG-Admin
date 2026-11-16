@@ -1,4 +1,4 @@
-# Architecture notes (Phases 4–7)
+# Architecture notes (Phases 4–8)
 
 Full audit and plan: "thinkNXG Admin Command Center — Audit & Architecture" (Claude doc).
 
@@ -45,4 +45,15 @@ Full audit and plan: "thinkNXG Admin Command Center — Audit & Architecture" (C
   marking Error Logs seen and Core's own RQ `stop_job` / `remove_failed_jobs`.
 - **Notifications** read `Notification Log` for the session user only; `type` is a Link to
   `Notification Type` in this Core release, so type filters are discovered from the data.
-- Configuration, Reports and My Workspace remain labelled "Planned · Phase 8".
+
+## Phase 8 decisions
+
+- **Configuration edits an allow-list**, not the whole System Settings form: unknown keys are refused,
+  saves go through the Single's own `save()` (its validation runs), and a `modified` check prevents
+  overwriting someone else's change. Security-weakening values are flagged by the server for confirmation.
+- **Report visibility mirrors Core**: report roles when set, otherwise read access to the reference DocType;
+  administrators see all. Usage = Access Log exports (30 days) + the user's own Route History opens.
+- **My Workspace is strictly personal**: own ToDos, Workflow Actions addressed to the user or their roles,
+  own Version and Route History, workspaces filtered by role and blocked modules. Preference saves touch
+  a fixed list of fields on the user's own record (language, time zone, theme, default workspace / app).
+- Non-admin desk users land on My Workspace; the Command Center stays admin-only.

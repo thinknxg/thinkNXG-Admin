@@ -3,7 +3,7 @@
 Premium administration shell for **thinkNXG Core**, **thinkNXG ERP** and **thinkNXG HR** (V16).
 It opens at **`/thinknxg`**, next to the classic Desk at `/desk`, which it leaves untouched.
 
-Release 16.2: application shell, Command Center and System Health (Phases 4–5); Users & Access, Roles & Permissions, Organization, Workspaces and Apps & Modules (Phase 6); Integrations, Automation, Audit & Compliance, Developer Tools and the Notification Center (Phase 7).
+Release 16.3: application shell, Command Center and System Health (Phases 4–5); Users & Access, Roles & Permissions, Organization, Workspaces and Apps & Modules (Phase 6); Integrations, Automation, Audit & Compliance, Developer Tools and the Notification Center (Phase 7); System Configuration, Reports & Analytics and My Workspace (Phase 8). Every menu item is now a working screen.
 
 ## Install
 
@@ -40,7 +40,9 @@ shows "Not available" when that app is not installed.
 | Audit & Compliance | One timeline over Activity Log, Permission Log, Version, Access Log and API Request Log: categories (sign-ins, permissions, users & roles, configuration, data exports, documents, API), actor / result / date / text filters (saved per browser), expandable before → after values, summary tiles, most-failed users and IPs, CSV export (needs export permission on Activity Log; the export itself is written to the Access Log) |
 | Developer Tools | Overview (apps and versions, DocType and customisation counts, developer mode, server-script flag), DocType explorer with field / permission / customisation detail, custom fields / property setters / client and server scripts lists, Error Log reader (mark seen), background jobs by state (stop running jobs, clear failed). System Manager only; nothing executes code |
 | Notification Center | `/thinknxg/notifications` for every desk user: type filters with unread counts, unread-only switch, day grouping, mark read / mark all read through Core, open the related document, personal notification and email settings |
-| Not built yet | Every other menu item opens a clearly labelled "Planned · Phase N" page with a working link to the same screen in Desk |
+| System Configuration | System Manager only. Allow-listed System Settings fields grouped as General & regional, Sign-in & sessions, Passwords, Two-factor, Email, Files, System; setting search; unsaved-changes bar; security-weakening changes need confirmation (disabling password sign-in needs typing CONFIRM); stale-edit protection; log retention (Log Settings); product name and Classic Desk link |
+| Reports & Analytics | Every user sees the reports they may open (report roles, else DocType read access): search, module / type filters, favourites, most used (your opens + 30-day exports), dashboards with chart and card counts, scheduled email reports with on/off |
+| My Workspace | Landing page for every desk user (non-admins are sent here instead of the Command Center): open tasks with one-click done and undo, approvals waiting for your roles, workspaces your roles can open, records you changed recently, recently visited Desk pages, favourites; preferences drawer for theme, language, time zone, default workspace and default app |
 
 Keyboard: `Ctrl/⌘ K` palette · `/` search · `G` `C` Command Center · `G` `H` Health · `G` `U` Users · `[` sidebar · `?` help.
 
@@ -98,7 +100,8 @@ bench --site <test-site> run-tests --app thinknxg_admin
 Covers: every dashboard, Phase 6 and Phase 7 endpoint allowed for admins and refused for plain users and
 Guests, navigation filtering, KPI count matches a direct query, missing DocType returns `None`,
 the last System Manager guard, secrets never present in integration payloads, URL credential
-stripping, notifications scoped to their owner.
+stripping, notifications scoped to their owner, configuration allow-list and System Manager gate,
+preferences that cannot change roles or user type.
 
 ## License
 
