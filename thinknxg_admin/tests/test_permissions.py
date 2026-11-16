@@ -111,3 +111,64 @@ class TestPhase6Permissions(IntegrationTestCase):
 		if managers:
 			with self.assertRaises(frappe.ValidationError):
 				_guard_remove_sm(managers)
+
+
+class TestPhase7Permissions(IntegrationTestCase):
+	"""Integrations, Automation, Audit and Developer Tools refuse non-admins; notifications stay per user."""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def _admin_calls(self):
+		from thinknxg_admin.api import audit, automation, developer, integrations
+
+		return [
+			integrations.get_overview, lambda: integrations.list_webhook_logs(), lambda: integrations.list_integration_requests(),
+			automation.get_overview, lambda: automation.list_job_logs(), lambda: automation.set_enabled("Notification", "x", 1),
+			lambda: automation.run_scheduled_job("x"),
+			lambda: audit.get_events(), lambda: audit.get_summary(), lambda: audit.export_events(),
+			developer.get_overview, lambda: developer.list_doctypes(), lambda: developer.get_doctype("User"),
+			lambda: developer.list_customizations("custom_field"), lambda: developer.list_errors(), lambda: developer.list_jobs(),
+			lambda: developer.mark_errors_seen(all_unseen=1), lambda: developer.clear_failed_jobs(),
+		]
+
+	def test_plain_user_denied(self):
+		frappe.set_user(PLAIN_USER)
+		for i, fn in enumerate(self._admin_calls()):
+			with self.assertRaises(frappe.PermissionError, msg=f"call {i}"):
+				fn()
+
+	def test_admin_reads(self):
+		from thinknxg_admin.api import audit, automation, developer, integrations
+
+		frappe.set_user("Administrator")
+		integrations.get_overview()
+		automation.get_overview()
+		self.assertIn("rows", audit.get_events())
+		self.assertIn("doctypes", developer.get_overview())
+		self.assertEqual(developer.get_doctype("User")["name"], "User")
+
+	def test_secrets_never_returned(self):
+		from thinknxg_admin.api import integrations
+
+		frappe.set_user("Administrator")
+		payload = frappe.as_json(integrations.get_overview())
+		for key in ("webhook_secret", "client_secret", "api_secret", "access_token", "refresh_token", '"password"'):
+			self.assertNotIn(key, payload)
+
+	def test_safe_url_strips_credentials(self):
+		from thinknxg_admin.api.integrations import safe_url
+
+		self.assertEqual(safe_url("https://user:pass@api.example.com:8443/hook?token=abc"), "https://api.example.com:8443/hook")
+
+	def test_notifications_are_per_user(self):
+		from thinknxg_admin.api import notifications
+
+		frappe.set_user(PLAIN_USER)
+		res = notifications.list_notifications()
+		if res:
+			self.assertTrue(all(r.get("name") for r in res["rows"]))
+			self.assertEqual(frappe.db.count("Notification Log", {"for_user": ["!=", PLAIN_USER], "name": ["in", [r["name"] for r in res["rows"]] or ["__none__"]]}), 0)
+		frappe.set_user("Guest")
+		with self.assertRaises(frappe.AuthenticationError):
+			notifications.list_notifications()

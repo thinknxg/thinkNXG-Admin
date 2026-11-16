@@ -19,9 +19,10 @@ NAVIGATION = [
 		"section": "Overview",
 		"items": [
 			{"key": "command-center", "label": "Command Center", "icon": "layout-dashboard", "route": "/", "admin": True, "status": "live"},
+			{"key": "notifications", "label": "Notifications", "icon": "bell", "route": "/notifications", "status": "live"},
 			{
 				"key": "my-workspace", "label": "My Workspace", "icon": "user-round", "route": "/my-workspace",
-				"desk": "/desk", "status": "planned", "phase": 6,
+				"desk": "/desk", "status": "planned", "phase": 8,
 				"description": "Your role-based landing page with shortcuts, tasks and approvals.",
 				"capabilities": ["Personal landing page per role", "Pinned shortcuts and favourites", "Assigned tasks and approvals"],
 			},
@@ -77,25 +78,25 @@ NAVIGATION = [
 		"items": [
 			{
 				"key": "configuration", "label": "Configuration", "icon": "sliders-horizontal", "route": "/configuration",
-				"doctype": "System Settings", "admin": True, "status": "planned", "phase": 6, "desk": "/desk/system-settings",
+				"doctype": "System Settings", "admin": True, "status": "planned", "phase": 8, "desk": "/desk/system-settings",
 				"description": "General, security, email and system settings in one place.",
 				"capabilities": ["General, regional and branding settings", "Security: password policy, sessions, 2FA", "Email accounts and templates"],
 			},
 			{
 				"key": "integrations", "label": "Integrations", "icon": "plug", "route": "/integrations", "doctype": "Webhook",
-				"admin": True, "status": "planned", "phase": 7, "desk": "/desk/webhook",
+				"admin": True, "status": "live", "desk": "/desk/webhook",
 				"description": "Webhooks, OAuth clients, connected apps and their logs.",
 				"capabilities": ["Webhooks and connected apps", "OAuth clients and API keys (masked)", "Integration request logs"],
 			},
 			{
 				"key": "automation", "label": "Automation", "icon": "workflow", "route": "/automation", "doctype": "Workflow",
-				"admin": True, "status": "planned", "phase": 7, "desk": "/desk/workflow",
+				"admin": True, "status": "live", "desk": "/desk/workflow",
 				"description": "Workflows, notifications, assignment rules and scheduled jobs.",
 				"capabilities": ["Workflows and approval states", "Notifications and assignment rules", "Scheduled job overview"],
 			},
 			{
 				"key": "reports", "label": "Reports", "icon": "chart-column", "route": "/reports", "doctype": "Report",
-				"status": "planned", "phase": 7, "desk": "/desk/report",
+				"status": "planned", "phase": 8, "desk": "/desk/report",
 				"description": "Report catalogue, saved filters and dashboards.",
 				"capabilities": ["Report catalogue by module", "Saved filters and favourites", "Dashboards"],
 			},
@@ -106,14 +107,14 @@ NAVIGATION = [
 		"items": [
 			{
 				"key": "audit", "label": "Audit & Compliance", "icon": "scroll-text", "route": "/audit", "doctype": "Activity Log",
-				"admin": True, "status": "planned", "phase": 7, "desk": "/desk/activity-log",
+				"admin": True, "status": "live", "desk": "/desk/activity-log",
 				"description": "Logins, permission changes and configuration history with before/after values.",
 				"capabilities": ["Login history and failed attempts", "Permission, role and workspace change trail", "Before/after values with export"],
 			},
 			{"key": "system-health", "label": "System Health", "icon": "activity", "route": "/system-health", "admin": True, "status": "live"},
 			{
 				"key": "developer", "label": "Developer Tools", "icon": "terminal", "route": "/developer", "doctype": "DocType",
-				"admin": True, "status": "planned", "phase": 7, "desk": "/desk/doctype",
+				"admin": True, "status": "live", "desk": "/desk/doctype",
 				"description": "DocType explorer, customisations, scheduled jobs and logs.",
 				"capabilities": ["DocType explorer, custom fields, property setters", "Server scripts and scheduled jobs", "Error, API and webhook logs"],
 			},
