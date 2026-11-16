@@ -1,0 +1,25 @@
+{
+	"name": "thinknxg-admin-ui",
+	"private": true,
+	"version": "16.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build --base=/assets/thinknxg_admin/frontend/ && yarn copy-html-entry",
+		"copy-html-entry": "cp ../thinknxg_admin/public/frontend/index.html ../thinknxg_admin/www/thinknxg.html"
+	},
+	"dependencies": {
+		"frappe-ui": "1.2.0",
+		"lucide-vue-next": "^0.460.0",
+		"vue": "^3.5.13",
+		"vue-router": "^4.5.0"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^5.2.1",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.4.49",
+		"tailwindcss": "^3.4.17",
+		"typescript": "^5.6.3",
+		"vite": "^5.4.11"
+	}
+}

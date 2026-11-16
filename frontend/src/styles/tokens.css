@@ -1,0 +1,93 @@
+/* thinkNXG design tokens - derived from the official thinkNXG mark
+ * (espresso #3E120B / #270C0E, signal red #ED1F24 / #FF0200).
+ * Espresso is the working colour; brand red is the signature, used sparingly.
+ * Contrast ratios are documented in the architecture doc, section 3.1. */
+
+:root,
+[data-theme="light"] {
+	color-scheme: light;
+	--nxg-brand-espresso: #3e120b;
+	--nxg-brand-ink: #270c0e;
+	--nxg-brand-red: #ed1f24;
+	--nxg-brand-red-strong: #c8151b;
+	--nxg-brand-red-soft: rgba(237, 31, 36, 0.1);
+
+	--nxg-bg: #faf8f7;
+	--nxg-surface: #ffffff;
+	--nxg-surface-2: #f5f2f1;
+	--nxg-border: #e9e4e2;
+	--nxg-border-strong: #d6cfcc;
+	--nxg-text: #1c0f0d;
+	--nxg-text-2: #6b5e5b;
+	--nxg-text-3: #9a8e8b;
+
+	--nxg-primary: #3e120b;
+	--nxg-primary-hover: #2b0c08;
+	--nxg-primary-fg: #ffffff;
+
+	--nxg-sidebar-bg: #1c0a08;
+	--nxg-sidebar-text: #c9bcb9;
+	--nxg-sidebar-muted: #8c7c78;
+	--nxg-sidebar-hover: rgba(255, 255, 255, 0.06);
+	--nxg-sidebar-active: rgba(255, 255, 255, 0.09);
+	--nxg-sidebar-border: rgba(255, 255, 255, 0.08);
+
+	--nxg-success: #15803d;
+	--nxg-success-soft: #dcfce7;
+	--nxg-warning: #b45309;
+	--nxg-warning-soft: #fef3c7;
+	--nxg-danger: #b42318;
+	--nxg-danger-soft: #fee4e2;
+	--nxg-info: #0369a1;
+	--nxg-info-soft: #e0f2fe;
+
+	/* Chart ink: one hue for magnitude, recessive grid. Brand red is not a series colour. */
+	--nxg-chart-1: #6b2f22;
+	--nxg-chart-1-soft: rgba(107, 47, 34, 0.12);
+	--nxg-chart-grid: #efebe9;
+
+	--nxg-shadow-e1: 0 1px 2px rgba(28, 15, 13, 0.05);
+	--nxg-shadow-e2: 0 4px 16px -4px rgba(28, 15, 13, 0.14), 0 1px 2px rgba(28, 15, 13, 0.06);
+	--nxg-shadow-e3: 0 16px 40px -8px rgba(28, 15, 13, 0.28), 0 2px 6px rgba(28, 15, 13, 0.08);
+	--nxg-focus: 0 0 0 2px rgba(237, 31, 36, 0.4);
+}
+
+[data-theme="dark"] {
+	color-scheme: dark;
+	--nxg-brand-red: #ff4d4f;
+	--nxg-brand-red-strong: #ff4d4f;
+	--nxg-brand-red-soft: rgba(255, 77, 79, 0.14);
+
+	--nxg-bg: #120a09;
+	--nxg-surface: #1a1110;
+	--nxg-surface-2: #221816;
+	--nxg-border: #33282a;
+	--nxg-border-strong: #4a3b3a;
+	--nxg-text: #f3eeed;
+	--nxg-text-2: #b3a6a3;
+	--nxg-text-3: #7d706d;
+
+	--nxg-primary: #f3eeed;
+	--nxg-primary-hover: #ffffff;
+	--nxg-primary-fg: #1a1110;
+
+	--nxg-sidebar-bg: #0d0605;
+
+	--nxg-success: #4ade80;
+	--nxg-success-soft: rgba(74, 222, 128, 0.12);
+	--nxg-warning: #fbbf24;
+	--nxg-warning-soft: rgba(251, 191, 36, 0.12);
+	--nxg-danger: #f87171;
+	--nxg-danger-soft: rgba(248, 113, 113, 0.12);
+	--nxg-info: #38bdf8;
+	--nxg-info-soft: rgba(56, 189, 248, 0.12);
+
+	--nxg-chart-1: #d9a79a;
+	--nxg-chart-1-soft: rgba(217, 167, 154, 0.14);
+	--nxg-chart-grid: #2a201f;
+
+	--nxg-shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--nxg-shadow-e2: 0 8px 24px -6px rgba(0, 0, 0, 0.6);
+	--nxg-shadow-e3: 0 20px 48px -10px rgba(0, 0, 0, 0.75);
+	--nxg-focus: 0 0 0 2px rgba(255, 77, 79, 0.5);
+}
