@@ -59,7 +59,7 @@ const storage = computed(() => live.state.data?.checks?.find((c: any) => c.key =
 			</div>
 			<div class="flex gap-2">
 				<button class="nxg-btn nxg-btn-secondary" :disabled="live.state.loading" @click="live.load(true)"><Icon name="refresh-cw" :size="14" :class="live.state.loading && 'animate-spin'" />Re-run checks</button>
-				<a href="/desk/system-health-report" class="nxg-btn nxg-btn-ghost">Open in Desk<Icon name="external-link" :size="13" /></a>
+				<a href="/thinknxg/admin/doc/system-health-report/System%20Health%20Report" class="nxg-btn nxg-btn-ghost">Open full report<Icon name="chevron-right" :size="13" /></a>
 			</div>
 		</div>
 
@@ -74,7 +74,7 @@ const storage = computed(() => live.state.data?.checks?.find((c: any) => c.key =
 								<td class="py-2 font-medium">{{ q.name }}</td>
 								<td class="nxg-tnum py-2 text-right">{{ q.queued }}</td>
 								<td class="nxg-tnum py-2 text-right">{{ q.running }}</td>
-								<td class="nxg-tnum py-2 text-right"><a v-if="q.failed" href="/desk/rq-job?status=failed" class="font-medium text-nxg-danger hover:underline">{{ q.failed }}</a><span v-else>0</span></td>
+								<td class="nxg-tnum py-2 text-right"><a v-if="q.failed" :href="$href('/desk/rq-job?status=failed')" class="font-medium text-nxg-danger hover:underline">{{ q.failed }}</a><span v-else>0</span></td>
 							</tr>
 						</tbody>
 					</table>

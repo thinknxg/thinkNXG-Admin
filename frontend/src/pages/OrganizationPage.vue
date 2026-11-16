@@ -46,8 +46,8 @@ const regionalRows = computed(() => {
 <template>
 	<div class="mx-auto w-full max-w-[1480px] px-4 pb-10 pt-6 sm:px-6">
 		<PageHeader title="Organization" :description="shell.company ? `Structure for ${shell.company}. Change the scope with the organisation selector in the top bar.` : 'Companies, departments, branches and designations across the organisation.'">
-			<a href="/desk/company/new" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Company</a>
-			<a href="/desk/department/new" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Department</a>
+			<a :href="$href('/desk/company/new')" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Company</a>
+			<a :href="$href('/desk/department/new')" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Department</a>
 			<button class="nxg-icon-btn" aria-label="Reload" @click="org.load(true)"><Icon name="refresh-cw" :size="15" :class="org.state.loading && 'animate-spin'" /></button>
 		</PageHeader>
 
@@ -56,7 +56,7 @@ const regionalRows = computed(() => {
 			<!-- Companies -->
 			<div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
 				<template v-if="org.state.loading && !org.state.data"><div v-for="i in 3" :key="i" class="nxg-skeleton h-36" /></template>
-				<a v-for="c in org.state.data?.companies || []" :key="c.name" :href="`/desk/company/${encodeURIComponent(c.name)}`" class="nxg-panel group flex flex-col gap-3 p-4 transition-colors hover:border-nxg-border-strong" :class="shell.company === c.name && 'ring-1 ring-nxg-border-strong'">
+				<a v-for="c in org.state.data?.companies || []" :key="c.name" :href="$href(`/desk/company/${encodeURIComponent(c.name)}`)" class="nxg-panel group flex flex-col gap-3 p-4 transition-colors hover:border-nxg-border-strong" :class="shell.company === c.name && 'ring-1 ring-nxg-border-strong'">
 					<div class="flex items-start justify-between gap-2">
 						<div class="min-w-0">
 							<div class="flex items-center gap-2"><span class="truncate text-[14.5px] font-semibold">{{ c.name }}</span><span class="nxg-chip">{{ c.abbr }}</span></div>
@@ -86,7 +86,7 @@ const regionalRows = computed(() => {
 							<button v-if="d.hasChildren" class="flex h-5 w-5 items-center justify-center rounded text-nxg-text-2 hover:text-nxg-text" :aria-label="collapsed[d.name] ? 'Expand' : 'Collapse'" @click="collapsed[d.name] = !collapsed[d.name]"><Icon :name="collapsed[d.name] ? 'chevron-right' : 'chevron-down'" :size="14" /></button>
 							<span v-else class="w-5" />
 							<Icon :name="d.is_group ? 'network' : 'users'" :size="14" class="text-nxg-text-3" />
-							<a :href="`/desk/department/${encodeURIComponent(d.name)}`" class="min-w-0 flex-1 truncate hover:underline" :class="d.is_group && 'font-medium'">{{ d.department_name || d.name }}</a>
+							<a :href="$href(`/desk/department/${encodeURIComponent(d.name)}`)" class="min-w-0 flex-1 truncate hover:underline" :class="d.is_group && 'font-medium'">{{ d.department_name || d.name }}</a>
 							<span v-if="d.company && !shell.company" class="hidden text-[11.5px] text-nxg-text-3 sm:inline">{{ d.company }}</span>
 							<span class="nxg-tnum w-16 text-right text-[12px] text-nxg-text-2" :title="d.total !== null ? `${d.total} active employees` : ''">{{ d.employees === null ? "" : d.total }}</span>
 						</li>
@@ -94,10 +94,10 @@ const regionalRows = computed(() => {
 				</div>
 
 				<div v-else-if="tab === 'branches'" class="p-4">
-					<NxgEmpty v-if="!org.state.data.branches.length" text="No branches yet" icon="git-branch"><a href="/desk/branch/new" class="nxg-btn nxg-btn-secondary mt-2 h-7">Add branch</a></NxgEmpty>
+					<NxgEmpty v-if="!org.state.data.branches.length" text="No branches yet" icon="git-branch"><a :href="$href('/desk/branch/new')" class="nxg-btn nxg-btn-secondary mt-2 h-7">Add branch</a></NxgEmpty>
 					<ul v-else class="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
 						<li v-for="b in org.state.data.branches" :key="b.name">
-							<a :href="`/desk/branch/${encodeURIComponent(b.name)}`" class="block rounded-nxg-sm" :title="`${b.name}: ${b.employees ?? 'n/a'} employees`">
+							<a :href="$href(`/desk/branch/${encodeURIComponent(b.name)}`)" class="block rounded-nxg-sm" :title="`${b.name}: ${b.employees ?? 'n/a'} employees`">
 								<div class="flex justify-between text-[13px]"><span class="truncate hover:underline">{{ b.name }}</span><span class="nxg-tnum text-nxg-text-2">{{ b.employees ?? "—" }}</span></div>
 								<div class="mt-1 h-1.5 rounded-full bg-nxg-surface-2"><div class="h-1.5 rounded-full bg-[var(--nxg-chart-1)]" :style="{ width: `${Math.max(2, ((b.employees || 0) / maxBranch) * 100)}%` }" /></div>
 							</a>
@@ -108,7 +108,7 @@ const regionalRows = computed(() => {
 				<div v-else-if="tab === 'designations'" class="p-4">
 					<NxgEmpty v-if="!org.state.data.designations.length" text="No designations yet" icon="id-card" />
 					<ul v-else class="grid grid-cols-1 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
-						<li v-for="d in org.state.data.designations" :key="d.name"><a :href="`/desk/designation/${encodeURIComponent(d.name)}`" class="flex justify-between border-b border-nxg-border py-1.5 text-[13px] hover:text-nxg-text"><span class="truncate">{{ d.name }}</span><span class="nxg-tnum text-nxg-text-2">{{ d.employees ?? "—" }}</span></a></li>
+						<li v-for="d in org.state.data.designations" :key="d.name"><a :href="$href(`/desk/designation/${encodeURIComponent(d.name)}`)" class="flex justify-between border-b border-nxg-border py-1.5 text-[13px] hover:text-nxg-text"><span class="truncate">{{ d.name }}</span><span class="nxg-tnum text-nxg-text-2">{{ d.employees ?? "—" }}</span></a></li>
 					</ul>
 				</div>
 
@@ -116,7 +116,7 @@ const regionalRows = computed(() => {
 					<div>
 						<h3 class="mb-2 nxg-micro">Fiscal years</h3>
 						<ul class="divide-y divide-nxg-border rounded-nxg border border-nxg-border text-[13px]">
-							<li v-for="y in org.state.data.fiscal_years" :key="y.name" class="flex items-center justify-between px-3 py-2"><a :href="`/desk/fiscal-year/${encodeURIComponent(y.name)}`" class="font-medium hover:underline">{{ y.name }}</a><span class="text-nxg-text-2">{{ y.year_start_date }} → {{ y.year_end_date }}<span v-if="y.disabled" class="nxg-chip ml-2">Disabled</span></span></li>
+							<li v-for="y in org.state.data.fiscal_years" :key="y.name" class="flex items-center justify-between px-3 py-2"><a :href="$href(`/desk/fiscal-year/${encodeURIComponent(y.name)}`)" class="font-medium hover:underline">{{ y.name }}</a><span class="text-nxg-text-2">{{ y.year_start_date }} → {{ y.year_end_date }}<span v-if="y.disabled" class="nxg-chip ml-2">Disabled</span></span></li>
 							<li v-if="!org.state.data.fiscal_years.length" class="px-3 py-4 text-nxg-text-2">No fiscal years.</li>
 						</ul>
 					</div>
@@ -126,7 +126,7 @@ const regionalRows = computed(() => {
 							<div v-for="[k, v] in regionalRows" :key="k" class="flex justify-between px-3 py-2"><dt class="text-nxg-text-2">{{ k }}</dt><dd>{{ v || "—" }}</dd></div>
 							<div class="flex justify-between px-3 py-2"><dt class="text-nxg-text-2">Enabled currencies</dt><dd class="nxg-tnum">{{ org.state.data.currencies_enabled ?? "—" }}</dd></div>
 						</dl>
-						<a href="/desk/system-settings" class="nxg-btn nxg-btn-ghost mt-2">Edit in System Settings<Icon name="external-link" :size="13" /></a>
+						<a :href="$href('/desk/system-settings')" class="nxg-btn nxg-btn-ghost mt-2">Edit in System Settings<Icon name="external-link" :size="13" /></a>
 					</div>
 				</div>
 			</div>

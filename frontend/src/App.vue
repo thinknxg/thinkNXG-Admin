@@ -30,9 +30,9 @@ useShortcuts({
 	"g a": () => goCenter("admin"),
 	"g e": () => goCenter("erp"),
 	"g h": () => goCenter("hr"),
-	"g c": () => canSee("/") && router.push("/"),
-	"g s": () => canSee("/system-health") && router.push("/system-health"),
-	"g u": () => canSee("/users") && router.push("/users"),
+	"g c": () => canSee("/admin") && router.push("/admin"),
+	"g s": () => canSee("/admin/system-health") && router.push("/admin/system-health"),
+	"g u": () => canSee("/admin/users") && router.push("/admin/users"),
 });
 const ready = computed(() => boot.ready && boot.data);
 </script>
@@ -44,7 +44,7 @@ const ready = computed(() => boot.ready && boot.data);
 	<div v-else-if="boot.error" class="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
 		<Icon name="circle-alert" :size="22" class="text-nxg-danger" />
 		<p class="max-w-md text-[14px]">{{ boot.error }}</p>
-		<a href="/desk" class="nxg-btn nxg-btn-secondary">Go to Desk</a>
+		<button class="nxg-btn nxg-btn-secondary" onclick="location.reload()">Try again</button>
 	</div>
 	<div v-else-if="ready" class="flex h-full overflow-hidden">
 		<!-- Desktop sidebar -->
@@ -61,7 +61,7 @@ const ready = computed(() => boot.ready && boot.data);
 			<div v-if="preview" class="bg-nxg-warning px-4 py-1 text-center text-[12px] font-medium text-white">Preview build with sample data - not connected to a site</div>
 			<TopBar />
 			<main id="main" class="nxg-scroll min-h-0 flex-1 overflow-y-auto">
-				<RouterView :key="$route.matched[0]?.path" />
+				<RouterView :key="$route.path" />
 			</main>
 		</div>
 		<CommandPalette />

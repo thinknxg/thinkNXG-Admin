@@ -9,7 +9,7 @@ defineEmits<{ retry: [] }>();
 </script>
 
 <template>
-	<NxgPanel title="Organization" :subtitle="company ? `Scoped to ${company}` : 'All companies'" :loading="state.loading && !state.data" :error="state.error" href="/desk/company" href-label="Companies" :skeleton-rows="6" @retry="$emit('retry')">
+	<NxgPanel title="Organization" :subtitle="company ? `Scoped to ${company}` : 'All companies'" :loading="state.loading && !state.data" :error="state.error" :href="$href('/desk/company')" href-label="Companies" :skeleton-rows="6" @retry="$emit('retry')">
 		<ul class="grid grid-cols-2 gap-2">
 			<li v-for="i in state.data?.items || []" :key="i.doctype">
 				<a :href="i.value === null ? undefined : i.route" class="flex items-center gap-2.5 rounded-nxg border border-nxg-border px-2.5 py-2 transition-colors" :class="i.value === null ? 'opacity-60' : 'hover:border-nxg-border-strong hover:bg-nxg-surface-2'" :title="i.value === null ? `${i.doctype} is not installed on this site` : `Open ${i.label}`">
@@ -21,7 +21,7 @@ defineEmits<{ retry: [] }>();
 				</a>
 			</li>
 			<li v-if="state.data && !state.data.business_units_configured" class="col-span-2">
-				<a href="/desk/thinknxg-admin-settings" class="flex items-center gap-2 rounded-nxg border border-dashed border-nxg-border-strong px-2.5 py-2 text-[12px] text-nxg-text-2 hover:text-nxg-text"><Icon name="layers" :size="14" />Business units: choose a source in Command Center settings</a>
+				<a :href="$href('/desk/thinknxg-admin-settings')" class="flex items-center gap-2 rounded-nxg border border-dashed border-nxg-border-strong px-2.5 py-2 text-[12px] text-nxg-text-2 hover:text-nxg-text"><Icon name="layers" :size="14" />Business units: choose a source in Command Center settings</a>
 			</li>
 		</ul>
 	</NxgPanel>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { internalHref, toInternal } from "@/lib/links";
+const resolveHref = (h: string) => { const i = toInternal(h); return i ? internalHref(i) : h; };
 import { computed } from "vue";
 import NxgPanel from "@/components/ui/NxgPanel.vue";
 import AreaChart from "@/components/ui/AreaChart.vue";
@@ -12,17 +14,17 @@ defineEmits<{ retry: [] }>();
 const stats = computed(() => {
 	const d = props.state.data || {};
 	return [
-		{ label: "Successful sign-ins", value: d.successful_logins, href: "/desk/activity-log?operation=Login&status=Success" },
-		{ label: "Failed sign-ins", value: d.failed_logins, href: "/desk/activity-log?operation=Login&status=Failed", warn: (d.failed_logins || 0) > 0 },
-		{ label: "Config changes", value: d.config_changes, href: "/desk/version" },
-		{ label: "Errors logged", value: d.errors, href: "/desk/error-log", warn: (d.errors || 0) > 0 },
+		{ label: "Successful sign-ins", value: d.successful_logins, href: resolveHref("/desk/activity-log?operation=Login&status=Success") },
+		{ label: "Failed sign-ins", value: d.failed_logins, href: resolveHref("/desk/activity-log?operation=Login&status=Failed"), warn: (d.failed_logins || 0) > 0 },
+		{ label: "Config changes", value: d.config_changes, href: resolveHref("/desk/version") },
+		{ label: "Errors logged", value: d.errors, href: resolveHref("/desk/error-log"), warn: (d.errors || 0) > 0 },
 	];
 });
 const hasSeries = computed(() => (props.series || []).some((p) => p.logins > 0));
 </script>
 
 <template>
-	<NxgPanel title="System activity" :subtitle="`People signing in per day · last ${days} days`" :loading="state.loading && !state.data" :error="state.error" href="/desk/activity-log" href-label="Activity log" :skeleton-rows="6" @retry="$emit('retry')">
+	<NxgPanel title="System activity" :subtitle="`People signing in per day · last ${days} days`" :loading="state.loading && !state.data" :error="state.error" :href="$href('/desk/activity-log')" href-label="Activity log" :skeleton-rows="6" @retry="$emit('retry')">
 		<dl class="mb-3 grid grid-cols-2 gap-px overflow-hidden rounded-nxg border border-nxg-border bg-nxg-border sm:grid-cols-4">
 			<a v-for="s in stats" :key="s.label" :href="s.href" class="bg-nxg-surface px-3 py-2 hover:bg-nxg-surface-2">
 				<dt class="truncate text-[11.5px] text-nxg-text-2">{{ s.label }}</dt>

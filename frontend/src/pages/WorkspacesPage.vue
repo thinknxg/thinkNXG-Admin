@@ -85,7 +85,7 @@ async function saveIconRoles() {
 <template>
 	<div class="mx-auto w-full max-w-[1480px] px-4 pb-10 pt-6 sm:px-6">
 		<PageHeader title="Workspaces" description="Role-based workspaces, module sidebars and desktop icons: the navigation people see in thinkNXG.">
-			<a href="/desk/workspace/new" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />New workspace</a>
+			<a :href="$href('/desk/workspace/new')" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />New workspace</a>
 		</PageHeader>
 
 		<div v-if="data && !data.is_workspace_manager" class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-nxg border border-[var(--nxg-warning)] bg-[var(--nxg-warning-soft)] px-4 py-3 text-[13px]">
@@ -108,7 +108,7 @@ async function saveIconRoles() {
 				<template #cell-roles="{ row }"><span class="flex max-w-[280px] flex-wrap gap-1"><span v-for="r in row.roles.slice(0, 3)" :key="r" class="nxg-chip">{{ r }}</span><span v-if="row.roles.length > 3" class="nxg-chip">+{{ row.roles.length - 3 }}</span><span v-if="!row.roles.length" class="text-nxg-text-2">Everyone with access</span></span></template>
 				<template #cell-public="{ row }"><span class="text-nxg-text-2">{{ row.public ? "Public" : `Private · ${row.for_user}` }}</span></template>
 				<template #cell-is_hidden="{ row }"><span :class="row.is_hidden ? 'text-nxg-text-3' : ''">{{ row.is_hidden ? "Hidden" : "Shown" }}</span></template>
-				<template #cell-actions="{ row }"><a :href="`/desk/${encodeURIComponent((row.name || '').toLowerCase().replace(/ /g, '-'))}`" class="nxg-btn nxg-btn-ghost h-7" @click.stop>Open<Icon name="external-link" :size="12" /></a></template>
+				<template #cell-actions="{ row }"><a :href="$href(`/desk/${encodeURIComponent((row.name || '').toLowerCase().replace(/ /g, '-'))}`)" class="nxg-btn nxg-btn-ghost h-7" @click.stop>Open<Icon name="external-link" :size="12" /></a></template>
 			</DataTable>
 		</div>
 
@@ -131,7 +131,7 @@ async function saveIconRoles() {
 				<p v-if="edit.isPublic && !data?.is_workspace_manager" class="text-[12px] text-nxg-warning">Saving a public workspace needs the Workspace Manager role.</p>
 			</div>
 			<template #footer>
-				<a :href="`/desk/workspace/${encodeURIComponent(edit.name)}`" class="nxg-btn nxg-btn-ghost mr-auto">Edit content in Desk<Icon name="external-link" :size="13" /></a>
+				<a :href="`/desk/workspace/${encodeURIComponent(edit.name)}`" data-desk class="nxg-btn nxg-btn-ghost mr-auto" title="The workspace block editor is a Desk tool">Edit content in Desk<Icon name="external-link" :size="13" /></a>
 				<button class="nxg-btn nxg-btn-secondary" @click="edit.open = false">Cancel</button>
 				<button class="nxg-btn nxg-btn-primary" @click="saveEdit">Save</button>
 			</template>

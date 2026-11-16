@@ -1,5 +1,41 @@
 # Changelog
 
+## 16.5.0 — 16 November 2026
+
+Complete internal navigation: ERP and HR modules, documents and reports open inside their command
+center. Normal navigation no longer leads to the Desk.
+
+### Added
+- **Central route registry** (`api/routes.py`): ERP modules (Accounting, Selling, Buying, Stock,
+  Manufacturing, CRM, Projects, Assets, Quality, Support) and HR modules (Employees, Attendance, Leave,
+  Payroll, Recruitment, Performance, Training, Lifecycle, Expenses), each with their DocTypes and
+  reports. Boot sends each user only what they may read.
+- **Internal router**: `/thinknxg/<center>/<module>`, `/<doctype>`, `/<doctype>/new`, `/<doctype>/<name>`,
+  `/<center>/reports/<report>`, `/<center>/doc/<doctype>` for any other DocType; Access denied and
+  Not found pages inside the shell; route-level checks against the registry.
+- **Reusable document list** (search, standard filters, saved views, sorting, pagination, column
+  choice, bulk submit / cancel / delete, CSV export, status) and **document form** built from DocType
+  metadata (tabs, sections, columns, child tables, depends-on rules, fetch-from, attachments, comments,
+  timeline, workflow actions, Save / Submit / Cancel / Amend / Duplicate / Delete, print preview).
+  All reads and writes use the core methods (`getdoc`, `savedocs`, `cancel`, `apply_workflow`…).
+- **Report runner** through `frappe.desk.query_report.run`, with each report's own filters.
+- **Module pages** with record and draft counts per DocType and the module's reports.
+- **Legacy address resolver**: `/desk/…` and `/app/…` links anywhere (notifications, favourites,
+  links inside documents) open the matching internal page.
+- Automated navigation check: `frontend/e2e/navigation_check.py`.
+
+### Changed
+- Admin pages moved under `/thinknxg/admin/…`; old addresses redirect.
+- Every link the server builds (`desk_route`, KPI drill-downs, search, notifications, approvals, My
+  Workspace, report catalogue) now returns an internal address.
+- ERP and HR sidebars list their modules from the registry; the switcher no longer offers the thinkNXG
+  ERP / HR / Framework Desk tiles. Classic Desk remains for administrators only.
+
+### Stays in the Desk (System Managers)
+DocType editor, Customize Form, Print Format builder, Server and Client Scripts, Web Forms, and the
+workspace block editor.
+
+
 ## 16.4.0 — 16 November 2026
 
 Unified Enterprise Command Center: the Admin Command Center is extended to thinkNXG ERP and thinkNXG HR

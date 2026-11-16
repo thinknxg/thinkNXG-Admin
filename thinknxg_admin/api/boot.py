@@ -1,7 +1,8 @@
 import frappe
 
 from thinknxg_admin import __version__
-from thinknxg_admin.api.centers import default_center, get_centers, get_preferences, personal_navigation
+from thinknxg_admin.api.centers import center_levels, default_center, get_centers, get_preferences, personal_navigation
+from thinknxg_admin.api.routes import get_registry
 from thinknxg_admin.api.navigation import get_app_launcher
 from thinknxg_admin.api.utils import doctype_exists, has_field, is_admin, require_login
 
@@ -51,7 +52,9 @@ def build_boot() -> dict:
 	if default_company not in [c["name"] for c in companies]:
 		default_company = companies[0]["name"] if companies else None
 	settings = _settings()
-	centers = get_centers()
+	levels = center_levels()
+	registry = get_registry([{"key": k, "access": v} for k, v in levels.items()])
+	centers = get_centers(levels, registry)
 	prefs = get_preferences()
 	brand = dict(BRAND)
 	if settings.get("product_name"):
@@ -71,6 +74,8 @@ def build_boot() -> dict:
 		# Only the command centers the server grants; each carries its own
 		# navigation and quick actions, already filtered by permission.
 		"centers": centers,
+		# Modules, DocTypes and reports this user may open (the route registry).
+		"registry": registry,
 		"default_center": default_center(centers, prefs),
 		"preferences": prefs,
 		# Shown when the user has no command center at all.

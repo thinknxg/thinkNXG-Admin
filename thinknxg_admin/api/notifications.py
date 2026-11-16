@@ -78,7 +78,9 @@ def get_notifications(limit: int = 20):
 def _route(r):
 	link = (r.get("link") or "").strip()
 	if link.startswith("/") and not link.startswith("//"):
-		return link
+		from thinknxg_admin.api.routes import from_desk_path
+
+		return from_desk_path(link) if link.startswith(("/app", "/desk")) else link
 	if r.get("document_type") and r.get("document_name"):
 		return desk_route(r.document_type, r.document_name)
 	return None

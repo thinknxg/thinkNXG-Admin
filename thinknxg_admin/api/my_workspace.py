@@ -6,6 +6,8 @@ preferences. Nothing reads another user's data.
 """
 
 import frappe
+
+from thinknxg_admin.api.routes import from_desk_path, workspace_route
 from frappe import _
 from frappe.utils import getdate, nowdate
 
@@ -66,7 +68,7 @@ def get_my_workspace():
 			if route in seen or not route:
 				continue
 			seen.add(route)
-			out["visited"].append({"route": f"/desk/{route.lstrip('/')}", "label": _route_label(route), "creation": created})
+			out["visited"].append({"route": from_desk_path(f"/desk/{route.lstrip('/')}"), "label": _route_label(route), "creation": created})
 			if len(out["visited"]) >= 10:
 				break
 
@@ -83,7 +85,7 @@ def get_my_workspace():
 			allowed = ws_roles.get(w.name)
 			if (allowed and not (allowed & mine)) or (w.module and w.module in blocked) or w.parent_page:
 				continue
-			out["workspaces"].append({**w, "route": f"/desk/{slug(w.name)}"})
+			out["workspaces"].append({**w, "route": workspace_route(w.name) or from_desk_path(f"/desk/{slug(w.name)}")})
 
 	info = frappe.db.get_value("User", user, ["full_name", "user_image", "email", "last_login", *[f for f in PREF_FIELDS if has_field("User", f)]], as_dict=True) or {}
 	out["user"] = {"name": user, "full_name": info.get("full_name"), "image": info.get("user_image"), "email": info.get("email"), "last_login": info.get("last_login")}

@@ -72,7 +72,7 @@ async function saveBrand() {
 	<div class="mx-auto w-full max-w-[1280px] px-4 pb-24 pt-6 sm:px-6">
 		<PageHeader title="System Configuration" description="Site-wide settings, grouped by purpose. Saved through System Settings, so the framework's own validation applies.">
 			<div class="relative w-64"><Icon name="search" :size="15" class="pointer-events-none absolute left-2.5 top-2 text-nxg-text-3" /><input v-model="search" class="nxg-input pl-8" placeholder="Find a setting" aria-label="Find a setting" /></div>
-			<a href="/desk/system-settings" class="nxg-btn nxg-btn-ghost">All settings<Icon name="external-link" :size="13" /></a>
+			<a :href="$href('/desk/system-settings')" class="nxg-btn nxg-btn-ghost">All settings<Icon name="external-link" :size="13" /></a>
 		</PageHeader>
 
 		<div v-if="cfg.state.error" class="nxg-panel p-4 text-[13px] text-nxg-danger">{{ cfg.state.error }} <button class="nxg-btn nxg-btn-secondary ml-2 h-7" @click="cfg.load(true)">Retry</button></div>
@@ -107,7 +107,7 @@ async function saveBrand() {
 								<input v-else :id="`cfg-${f.fieldname}`" class="nxg-input" :placeholder="f.fieldname === 'session_expiry' ? 'HH:mm, e.g. 06:00' : ''" :value="val(f) ?? ''" @input="set(f, ($event.target as HTMLInputElement).value)" />
 							</div>
 						</div>
-						<p v-if="search && !searchResults.length" class="px-5 py-8 text-center text-[13px] text-nxg-text-2">No setting matches. Try <a href="/desk/system-settings" class="nxg-link">all System Settings</a>.</p>
+						<p v-if="search && !searchResults.length" class="px-5 py-8 text-center text-[13px] text-nxg-text-2">No setting matches. Try <a :href="$href('/desk/system-settings')" class="nxg-link">all System Settings</a>.</p>
 					</div>
 				</template>
 
@@ -123,7 +123,7 @@ async function saveBrand() {
 				<template v-else>
 					<header class="border-b border-nxg-border px-5 py-4"><h2 class="text-[16px] font-semibold">Branding</h2><p class="text-[13px] text-nxg-text-2">How the Command Center names this product. The thinkNXG mark comes from thinkNXG Core.</p></header>
 					<div class="space-y-4 px-5 py-4">
-						<div class="flex items-center gap-3"><img :src="cfg.state.data?.branding?.app_logo || '/assets/frappe/images/thinkNXG-favicon.png'" alt="" class="h-12 w-12 rounded-nxg border border-nxg-border" /><div class="text-[12.5px] text-nxg-text-2">Desk logo is set in <a href="/desk/navbar-settings" class="nxg-link">Navbar Settings</a>.</div></div>
+						<div class="flex items-center gap-3"><img :src="cfg.state.data?.branding?.app_logo || '/assets/frappe/images/thinkNXG-favicon.png'" alt="" class="h-12 w-12 rounded-nxg border border-nxg-border" /><div class="text-[12.5px] text-nxg-text-2">Desk logo is set in <a :href="$href('/desk/navbar-settings')" class="nxg-link">Navbar Settings</a>.</div></div>
 						<div class="max-w-md"><label class="nxg-label" for="brand-name">Product name</label><input id="brand-name" v-model="brand.product_name" class="nxg-input" placeholder="thinkNXG ERP" /></div>
 						<div class="flex max-w-md items-center justify-between rounded-nxg border border-nxg-border px-3 py-2.5"><div><div class="text-[13px] font-medium">Show “Classic Desk” link</div><div class="text-[12px] text-nxg-text-2">In the app switcher and command palette.</div></div><NxgSwitch v-model="brand.show_classic_desk_link" label="Show Classic Desk link" /></div>
 						<button class="nxg-btn nxg-btn-primary" @click="saveBrand">Save branding</button>

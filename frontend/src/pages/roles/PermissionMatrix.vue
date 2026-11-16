@@ -137,7 +137,7 @@ async function resetDoctype() {
 <template>
 	<div class="mx-auto w-full max-w-[1480px] px-4 pb-10 pt-6 sm:px-6">
 		<PageHeader title="Permission Matrix" description="DocType permission rules, edited through the framework's own Role Permission Manager. Changes apply immediately.">
-			<a href="/desk/permission-manager" class="nxg-btn nxg-btn-ghost">Classic manager<Icon name="external-link" :size="13" /></a>
+			<a :href="$href('/desk/permission-manager')" class="nxg-btn nxg-btn-ghost">Classic manager<Icon name="external-link" :size="13" /></a>
 		</PageHeader>
 
 		<div class="nxg-panel">

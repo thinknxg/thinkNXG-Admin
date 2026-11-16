@@ -46,7 +46,7 @@ const visible = computed(() => (roles.value || []).filter((r) => {
 }));
 
 // Detail
-const open = ref<string | null>((route.query.role as string) || null);
+const open = ref<string | null>((route.query.open as string) || (route.query.role as string) || null);
 const detail = ref<any>(null);
 const dLoading = ref(false);
 const tab = ref("users");
@@ -203,7 +203,7 @@ async function duplicate() {
 			</template>
 			<template v-if="detail?.role" #footer>
 				<button class="nxg-btn nxg-btn-ghost mr-auto" @click="startDuplicate(open!)">Duplicate role</button>
-				<a :href="`/desk/role/${encodeURIComponent(open || '')}`" class="nxg-btn nxg-btn-ghost">Open in Desk<Icon name="external-link" :size="13" /></a>
+				<a :href="`/thinknxg/admin/doc/role/${encodeURIComponent(open || '')}`" class="nxg-btn nxg-btn-ghost">Open full record<Icon name="chevron-right" :size="13" /></a>
 			</template>
 		</NxgDrawer>
 

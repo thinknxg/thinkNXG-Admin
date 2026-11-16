@@ -8,7 +8,7 @@ import { activeCenter, entryRoute } from "@/data/centers";
 import { shell } from "@/data/shell";
 import { favorites, pushRecent, recent } from "@/composables/useRecent";
 import { setTheme, isDark } from "@/composables/useTheme";
-import { isExternal } from "@/composables/format";
+import { go, toInternal } from "@/lib/links";
 
 interface Entry { id: string; group: string; label: string; description?: string; icon?: string; route?: string; run?: () => void }
 
@@ -73,13 +73,22 @@ const actions = computed<Entry[]>(() => {
 		seen.add(q.doctype);
 		list.push({ id: "a-new-" + q.doctype, group: "Actions", label: `New ${q.doctype}`, icon: q.icon, route: q.route });
 	}
-	if (b.show_classic_desk_link) list.push({ id: "a-desk", group: "Actions", label: "Open classic Desk", icon: "monitor", route: "/desk" });
+	if (b.show_classic_desk_link && b.user.is_admin) list.push({ id: "a-desk", group: "Actions", label: "Open classic Desk", description: "Administrators", icon: "monitor", run: () => (window.location.href = "/desk") });
 	return list;
 });
 
 const entries = computed<Entry[]>(() => {
 	const q = query.value.trim().toLowerCase();
-	const pages: Entry[] = allNavItems().map((i) => ({ id: "p-" + i.key, group: "Pages", label: i.label, description: i.status === "planned" ? "Planned" : i.href ? "Opens in Desk" : undefined, icon: i.icon || "file-text", route: i.href || i.route }));
+	const pages: Entry[] = allNavItems().map((i) => ({ id: "p-" + i.key, group: "Pages", label: i.label, description: i.status === "planned" ? "Planned" : undefined, icon: i.icon || "file-text", route: i.route }));
+	// Every module and document list the user may open, from the route registry.
+	const b = boot.data!;
+	for (const c of b.centers) {
+		for (const m of b.registry?.modules?.[c.key] || []) {
+			pages.push({ id: `m-${c.key}-${m.key}`, group: "Pages", label: m.label, description: c.label, icon: m.icon, route: `/${c.key}/${m.key}` });
+			for (const g of m.groups) for (const d of g.items) if (!pages.some((p) => p.label === d.doctype)) pages.push({ id: `d-${c.key}-${d.slug}`, group: "Documents", label: d.doctype, description: `${c.short} · ${m.label}`, icon: m.icon, route: `/${c.key}/${m.key}/${d.slug}` });
+			for (const r of m.reports) if (!pages.some((p) => p.label === r)) pages.push({ id: `r-${c.key}-${r}`, group: "Reports", label: r, description: `${c.short} · ${m.label}`, icon: "chart-column", route: `/${c.key}/reports/${encodeURIComponent(r)}` });
+		}
+	}
 	if (!q) {
 		const fav = favorites.value.map((f) => ({ id: "f-" + f.route, group: "Favorites", label: f.label, icon: f.icon || "star", route: f.route }));
 		const rec = recent.value.map((r) => ({ id: "r-" + r.route, group: "Recent", label: r.label, icon: r.icon || "clock", route: r.route }));
@@ -105,8 +114,7 @@ function choose(e?: Entry) {
 	if (e.run) return e.run();
 	if (!e.route) return;
 	pushRecent({ label: e.label, route: e.route, icon: e.icon });
-	if (isExternal(e.route)) window.location.href = e.route;
-	else router.push(e.route);
+	go(router, e.route.startsWith("/") && !e.route.startsWith("/desk") && !e.route.startsWith("/app") && !e.route.startsWith("/thinknxg") ? "/thinknxg" + e.route : e.route);
 }
 
 function onKey(ev: KeyboardEvent) {
@@ -171,7 +179,7 @@ function scrollActive() {
 								<Icon :name="e.icon" :size="15" class="text-nxg-text-2" />
 								<span class="min-w-0 flex-1 truncate">{{ e.label }}</span>
 								<span v-if="e.description" class="max-w-[40%] truncate text-[12px] text-nxg-text-3">{{ e.description }}</span>
-								<Icon v-if="e.route && isExternal(e.route)" name="external-link" :size="13" class="text-nxg-text-3" />
+								<Icon v-if="e.route && !toInternal(e.route.startsWith('/') && !e.route.startsWith('/desk') && !e.route.startsWith('/app') && !e.route.startsWith('/thinknxg') ? '/thinknxg' + e.route : e.route)" name="external-link" :size="13" class="text-nxg-text-3" />
 							</button>
 						</div>
 					</div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nav } from "@/lib/links";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { call, toast } from "frappe-ui";
@@ -7,7 +8,7 @@ import NxgMenu from "@/components/ui/NxgMenu.vue";
 import MenuItem from "@/components/ui/MenuItem.vue";
 import NxgAvatar from "@/components/ui/NxgAvatar.vue";
 import ContextFilters from "@/components/shell/ContextFilters.vue";
-import { allNavItems, boot, findNavByRoute } from "@/data/boot";
+import { allNavItems, boot, doctypeFromSlug, findNavByRoute, getModule } from "@/data/boot";
 import { activeCenter } from "@/data/centers";
 import { shell } from "@/data/shell";
 import { setTheme, themeMode, type ThemeMode } from "@/composables/useTheme";
@@ -21,6 +22,26 @@ const crumbs = computed(() => {
 	const c = activeCenter.value;
 	const home = c ? { label: c.label, to: c.route } : { label: "My Workspace", to: "/my-workspace" };
 	const out: { label: string; to?: string }[] = [home];
+	const p = route.params;
+	const center = route.meta.center as string | undefined;
+	// Module, list and form routes: center > module > document type > record.
+	if (center && (p.module || p.doctype || p.report)) {
+		if (p.report) {
+			out.push({ label: "Reports", to: "/reports" }, { label: decodeURIComponent(String(p.report)) });
+			return out;
+		}
+		const mod = p.module ? getModule(center, String(p.module)) : undefined;
+		if (mod) out.push({ label: mod.label, to: `/${center}/${mod.key}` });
+		if (p.doctype) {
+			const listTo = mod ? `/${center}/${mod.key}/${p.doctype}` : `/${center}/doc/${p.doctype}`;
+			const dt = doctypeFromSlug(String(p.doctype));
+			if (p.name || route.path.endsWith("/new")) {
+				out.push({ label: dt, to: listTo });
+				out.push({ label: p.name ? ([] as string[]).concat(p.name as any).join("/") : `New ${dt}` });
+			} else out.push({ label: dt });
+		}
+		return out;
+	}
 	const item = findNavByRoute(route.path);
 	if (item && item.route !== home.to) {
 		const parent = allNavItems().find((i) => i.children?.some((ch) => ch.key === item.key));
@@ -65,7 +86,7 @@ async function markAllRead() {
 }
 async function openNotification(n: Notif) {
 	if (!n.read) call("frappe.desk.doctype.notification_log.notification_log.mark_as_read", { docname: n.name }).catch(() => {});
-	if (n.route) window.location.href = n.route;
+	if (n.route) nav(n.route);
 }
 let timer: number | undefined;
 onMounted(() => {
@@ -139,7 +160,7 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 					<span class="text-[13px] font-semibold">Notifications</span>
 					<button v-if="notifs?.unread" class="text-[12px] text-nxg-text-2 hover:text-nxg-text" @click.stop="markAllRead">Mark all read</button>
 				</div>
-				<a v-if="notifs?.open_todos" href="/desk/todo?status=Open" class="mb-1 flex items-center gap-2 rounded-nxg-sm bg-nxg-surface-2 px-2 py-1.5 text-[12.5px]" data-close>
+				<a v-if="notifs?.open_todos" :href="$href('/desk/todo?status=Open')" class="mb-1 flex items-center gap-2 rounded-nxg-sm bg-nxg-surface-2 px-2 py-1.5 text-[12.5px]" data-close>
 					<Icon name="list-checks" :size="14" class="text-nxg-text-2" /><span class="flex-1">{{ notifs.open_todos }} open task{{ notifs.open_todos === 1 ? "" : "s" }} assigned to you</span><Icon name="chevron-right" :size="13" />
 				</a>
 				<div class="nxg-scroll max-h-[380px] overflow-y-auto">
@@ -172,7 +193,7 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 					<button class="ml-1 rounded-full" aria-label="Account" @click="toggle"><NxgAvatar :name="b.user.full_name" :image="b.user.image" :size="28" /></button>
 				</template>
 				<div class="px-2 py-1.5"><div class="truncate text-[13px] font-medium">{{ b.user.full_name }}</div><div class="truncate text-[12px] text-nxg-text-2">{{ b.user.email }}</div></div>
-				<MenuItem label="My profile" icon="user" :href="`/desk/user/${encodeURIComponent(b.user.name)}`" />
+				<MenuItem label="My profile" icon="user" :href="$href(`/desk/user/${encodeURIComponent(b.user.name)}`)" />
 				<MenuItem label="Log out" icon="log-out" href="/api/method/logout" />
 			</NxgMenu>
 		</div>

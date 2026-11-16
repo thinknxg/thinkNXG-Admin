@@ -32,7 +32,7 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 const selected = ref<string[]>([]);
 const options = ref<any>(null);
-const openUser = ref<string | null>((route.query.user as string) || null);
+const openUser = ref<string | null>((route.query.open as string) || (route.query.user as string) || null);
 
 let debounce: number | undefined;
 async function load() {

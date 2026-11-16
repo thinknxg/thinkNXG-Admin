@@ -128,10 +128,9 @@ def L(ctx, doctype, filters, fields, order_by=None, limit=8):
 
 
 def _route(doctype, **params):
-	from urllib.parse import urlencode
+	from thinknxg_admin.api.routes import internal_route
 
-	q = urlencode({k: v for k, v in params.items() if v is not None})
-	return f"/desk/{slug(doctype)}" + (f"?{q}" if q else "")
+	return internal_route(doctype, filters={k: v for k, v in params.items() if v is not None} or None)
 
 
 HIDDEN = {"hidden": True}

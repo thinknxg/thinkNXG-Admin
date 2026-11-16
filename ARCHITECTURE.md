@@ -130,3 +130,24 @@ Architecture & ERP/HR Blueprint" (approved 16 Nov 2026).
   workflow, the core workflow engine decides, as for ERP. Attendance and Compensatory Leave Requests
   have no approver field, so they appear as HR to-dos linking to the Desk.
 - The ERP and HR approval screens are one shared page (`ApprovalsPage.vue`).
+
+## 16.5 — complete internal navigation
+
+- **One registry** (`api/routes.py`) maps every ERP and HR module, DocType and report to an internal
+  route; `internal_route()` builds addresses on the server (and `desk_route()` now delegates to it),
+  `toInternal()` in `lib/links.ts` does the same in the browser, and `from_desk_path()` /
+  `docs.resolve` translate any old `/desk` or `/app` address.
+- **Link layer**: a document-level click handler routes every internal `<a>` through the router
+  without a reload and rewrites Desk hrefs on mousedown/focus, so new tabs stay inside too; templates
+  use `$href()`. `data-desk` marks the few deliberate Desk links (Classic Desk, developer tools).
+- **Route guards are UX, not security**: modules and DocTypes must be in the user's registry, otherwise
+  Access denied. Every list and form call is checked again on the server.
+- **Document engine** (`components/doc`): `DocList` reads rows through `docs.get_list` (frappe.get_list
+  and a permission-aware count; filters limited to readable fields). `DocForm` lays out fields from
+  `docs.get_form_meta` (field-level read and write permissions applied) and uses only core methods to
+  load, save, submit, cancel, run workflow actions, comment, attach, delete and print. Required-field
+  and depends-on rules are evaluated like the Desk; the server still decides.
+- **Not carried over**: browser-side form scripts of thinkNXG ERP/HR and site Client Scripts. Values
+  they compute on the fly are computed by the server on save (e.g. `set_missing_values`, totals in
+  `validate`). Report filters are read from each report's script with a tolerant stand-in for the Desk
+  globals; when a script cannot be read, company and date filters are offered.

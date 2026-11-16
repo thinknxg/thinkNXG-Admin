@@ -16,8 +16,11 @@ defineProps<{ collapsed: boolean }>();
 const router = useRouter();
 const b = computed(() => boot.data!);
 const list = computed(() => b.value.centers);
-const otherApps = computed(() => b.value.apps.filter((a) => a.app !== "thinknxg_admin"));
-const hasMenu = computed(() => list.value.length > 1 || otherApps.value.length > 0 || b.value.show_classic_desk_link);
+// Apps with their own interface (thinkNXG CRM, thinkDesk…). thinkNXG ERP and HR
+// are the ERP and HR command centers, and the framework is the Admin center.
+const otherApps = computed(() => b.value.apps.filter((a) => !["thinknxg_admin", "frappe", "erpnext", "hrms"].includes(a.app)));
+const deskLink = computed(() => b.value.show_classic_desk_link && b.value.user.is_admin);
+const hasMenu = computed(() => list.value.length > 1 || otherApps.value.length > 0 || deskLink.value);
 const accessLabel: Record<Center["access"], string> = { full: "Full access", limited: "Limited", team: "My team" };
 const accessHint: Record<Center["access"], string> = {
 	full: "Every figure in this center is available to you",
@@ -98,9 +101,9 @@ async function makeDefault(c: Center) {
 			<div class="px-2 pb-1 pt-1.5 nxg-micro">Other apps</div>
 			<MenuItem v-for="a in otherApps" :key="a.name" :label="a.title" :href="a.route" icon="layout-grid" />
 		</template>
-		<template v-if="b.show_classic_desk_link">
+		<template v-if="deskLink">
 			<div class="my-1 border-t border-nxg-border" />
-			<MenuItem label="Classic Desk" href="/desk" icon="monitor" />
+			<MenuItem label="Classic Desk" href="/desk" icon="monitor" data-desk />
 		</template>
 	</NxgMenu>
 	<div v-else class="flex min-w-0 flex-1 items-center gap-2.5 p-1">

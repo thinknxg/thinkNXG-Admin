@@ -35,7 +35,7 @@ const deltaTone = computed(() => {
 </script>
 
 <template>
-	<component :is="href && !restricted ? 'a' : 'div'" :href="restricted ? undefined : href" :title="hint" class="nxg-panel group flex min-w-0 flex-col justify-between gap-2 px-4 py-3.5 transition-colors" :class="href && 'hover:border-nxg-border-strong'">
+	<component :is="href && !restricted ? 'a' : 'div'" :href="restricted || !href ? undefined : $href(href)" :title="hint" class="nxg-panel group flex min-w-0 flex-col justify-between gap-2 px-4 py-3.5 transition-colors" :class="href && 'hover:border-nxg-border-strong'">
 		<div class="flex items-center justify-between gap-2">
 			<span class="flex min-w-0 items-center gap-1.5 truncate text-[12.5px] font-medium text-nxg-text-2" :title="label">
 				<Icon v-if="icon" :name="icon" :size="14" />{{ label }}

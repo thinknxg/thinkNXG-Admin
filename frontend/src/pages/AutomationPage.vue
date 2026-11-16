@@ -64,14 +64,14 @@ const schedulerTone: Record<string, [string, string]> = { running: ["ok", "Sched
 			<div v-if="tab !== 'other'" class="flex flex-wrap items-center gap-2 border-b border-nxg-border p-3">
 				<input v-model="search" class="nxg-input max-w-xs" placeholder="Search" aria-label="Search" />
 				<div v-if="tab === 'jobs'" class="inline-flex rounded-nxg border border-nxg-border p-0.5"><button v-for="o in ['all', 'failing', 'stopped']" :key="o" class="h-7 rounded-[6px] px-2.5 text-[12.5px] font-medium capitalize" :class="jobFilter === o ? 'bg-nxg-primary text-nxg-primary-fg' : 'text-nxg-text-2'" @click="jobFilter = o as any">{{ o }}</button></div>
-				<a :href="{ workflows: '/desk/workflow/new', notifications: '/desk/notification/new', assignment: '/desk/assignment-rule/new', jobs: '/desk/scheduled-job-type', scripts: '/desk/server-script/new' }[tab]" class="nxg-btn nxg-btn-secondary ml-auto">{{ tab === "jobs" ? "Open in Desk" : "New" }}<Icon :name="tab === 'jobs' ? 'external-link' : 'plus'" :size="13" /></a>
+				<a :href="$href({ workflows: '/desk/workflow/new', notifications: '/desk/notification/new', assignment: '/desk/assignment-rule/new', jobs: '/desk/scheduled-job-type', scripts: '/desk/server-script/new' }[tab])" class="nxg-btn nxg-btn-secondary ml-auto">{{ tab === "jobs" ? "View all" : "New" }}<Icon :name="tab === 'jobs' ? 'external-link' : 'plus'" :size="13" /></a>
 			</div>
 
 			<template v-if="tab === 'workflows'">
 				<NxgEmpty v-if="!d.workflows?.length" :text="d.workflows === null ? 'Workflows are not available' : 'No workflows yet'" icon="workflow" />
 				<DataTable v-else :columns="[{ key: 'name', label: 'Workflow' }, { key: 'document_type', label: 'Applies to' }, { key: 'states', label: 'States', align: 'right' }, { key: 'transitions', label: 'Transitions', align: 'right' }, { key: 'open_actions', label: 'Awaiting action', align: 'right' }, { key: 'is_active', label: 'Active', align: 'right' }]" :rows="d.workflows.filter((w: any) => match(w.name, w.document_type))">
-					<template #cell-name="{ row }"><a :href="`/desk/workflow/${encodeURIComponent(row.name)}`" class="font-medium hover:underline">{{ row.name }}</a></template>
-					<template #cell-open_actions="{ row }"><a v-if="row.open_actions" :href="`/desk/workflow-action?status=Open&reference_doctype=${encodeURIComponent(row.document_type)}`" class="nxg-tnum font-medium hover:underline">{{ row.open_actions }}</a><span v-else class="text-nxg-text-3">—</span></template>
+					<template #cell-name="{ row }"><a :href="$href(`/desk/workflow/${encodeURIComponent(row.name)}`)" class="font-medium hover:underline">{{ row.name }}</a></template>
+					<template #cell-open_actions="{ row }"><a v-if="row.open_actions" :href="$href(`/desk/workflow-action?status=Open&reference_doctype=${encodeURIComponent(row.document_type)}`)" class="nxg-tnum font-medium hover:underline">{{ row.open_actions }}</a><span v-else class="text-nxg-text-3">—</span></template>
 					<template #cell-is_active="{ row }"><NxgSwitch :model-value="!!row.is_active" :label="`Activate ${row.name}`" @update:model-value="(v) => setOn('Workflow', row, 'is_active', 1, v, row.name)" /></template>
 				</DataTable>
 				<p v-if="d.workflows?.length" class="border-t border-nxg-border px-4 py-2 text-[12px] text-nxg-text-2">Only one workflow can be active per DocType; activating one deactivates the others.</p>
@@ -80,7 +80,7 @@ const schedulerTone: Record<string, [string, string]> = { running: ["ok", "Sched
 			<template v-else-if="tab === 'notifications'">
 				<NxgEmpty v-if="!d.notifications?.length" text="No notification rules" icon="bell" />
 				<DataTable v-else :columns="[{ key: 'name', label: 'Notification' }, { key: 'document_type', label: 'Document' }, { key: 'event', label: 'When' }, { key: 'channel', label: 'Channel' }, { key: 'enabled', label: 'On', align: 'right' }]" :rows="d.notifications.filter((n: any) => match(n.name, n.document_type, n.event))">
-					<template #cell-name="{ row }"><a :href="`/desk/notification/${encodeURIComponent(row.name)}`" class="font-medium hover:underline">{{ row.name }}</a><span v-if="row.is_standard" class="nxg-chip ml-2">Standard</span></template>
+					<template #cell-name="{ row }"><a :href="$href(`/desk/notification/${encodeURIComponent(row.name)}`)" class="font-medium hover:underline">{{ row.name }}</a><span v-if="row.is_standard" class="nxg-chip ml-2">Standard</span></template>
 					<template #cell-event="{ row }"><span class="text-nxg-text-2">{{ row.event }}<span v-if="row.event === 'Days Before' || row.event === 'Days After'"> · {{ row.days_in_advance }} d on {{ row.date_changed }}</span><span v-if="row.event === 'Value Change'"> · {{ row.value_changed }}</span></span></template>
 					<template #cell-enabled="{ row }"><NxgSwitch :model-value="!!row.enabled" :label="`Enable ${row.name}`" @update:model-value="(v) => setOn('Notification', row, 'enabled', 1, v, row.name)" /></template>
 				</DataTable>
@@ -89,7 +89,7 @@ const schedulerTone: Record<string, [string, string]> = { running: ["ok", "Sched
 			<template v-else-if="tab === 'assignment'">
 				<NxgEmpty v-if="!d.assignment_rules?.length" text="No assignment rules" icon="list-checks" />
 				<DataTable v-else :columns="[{ key: 'name', label: 'Rule' }, { key: 'document_type', label: 'Document' }, { key: 'rule', label: 'Method' }, { key: 'users', label: 'Users', align: 'right' }, { key: 'priority', label: 'Priority', align: 'right' }, { key: 'last_user', label: 'Last assigned' }, { key: 'disabled', label: 'On', align: 'right' }]" :rows="d.assignment_rules.filter((r: any) => match(r.name, r.document_type))">
-					<template #cell-name="{ row }"><a :href="`/desk/assignment-rule/${encodeURIComponent(row.name)}`" class="font-medium hover:underline">{{ row.name }}</a></template>
+					<template #cell-name="{ row }"><a :href="$href(`/desk/assignment-rule/${encodeURIComponent(row.name)}`)" class="font-medium hover:underline">{{ row.name }}</a></template>
 					<template #cell-disabled="{ row }"><NxgSwitch :model-value="!row.disabled" :label="`Enable ${row.name}`" @update:model-value="(v) => setOn('Assignment Rule', row, 'disabled', 0, v, row.name)" /></template>
 				</DataTable>
 			</template>
@@ -110,7 +110,7 @@ const schedulerTone: Record<string, [string, string]> = { running: ["ok", "Sched
 				<p v-if="!d.server_scripts_enabled" class="border-b border-nxg-border bg-[var(--nxg-warning-soft)] px-4 py-2 text-[12.5px]">Server scripts are disabled for this bench (<code>server_script_enabled</code>), so none of these run.</p>
 				<NxgEmpty v-if="!d.server_scripts?.length" text="No server scripts" icon="terminal" />
 				<DataTable v-else :columns="[{ key: 'name', label: 'Script' }, { key: 'script_type', label: 'Type' }, { key: 'target', label: 'Runs on' }, { key: 'module', label: 'Module' }, { key: 'modified', label: 'Changed' }, { key: 'disabled', label: 'On', align: 'right' }]" :rows="d.server_scripts.filter((s: any) => match(s.name, s.reference_doctype, s.api_method))">
-					<template #cell-name="{ row }"><a :href="`/desk/server-script/${encodeURIComponent(row.name)}`" class="font-medium hover:underline">{{ row.name }}</a><span v-if="row.allow_guest" class="nxg-chip ml-2" title="Callable without signing in">Guest</span></template>
+					<template #cell-name="{ row }"><a :href="$href(`/desk/server-script/${encodeURIComponent(row.name)}`)" class="font-medium hover:underline">{{ row.name }}</a><span v-if="row.allow_guest" class="nxg-chip ml-2" title="Callable without signing in">Guest</span></template>
 					<template #cell-target="{ row }"><span class="text-nxg-text-2">{{ row.script_type === "API" ? `/api/method/${row.api_method}` : row.script_type === "Scheduler Event" ? row.event_frequency : `${row.reference_doctype || ""} · ${row.doctype_event || ""}` }}</span></template>
 					<template #cell-modified="{ row }"><span class="text-nxg-text-2">{{ timeAgo(row.modified) }}</span></template>
 					<template #cell-disabled="{ row }"><NxgSwitch :model-value="!row.disabled" :label="`Enable ${row.name}`" @update:model-value="(v) => setOn('Server Script', row, 'disabled', 0, v, row.name)" /></template>
@@ -124,7 +124,7 @@ const schedulerTone: Record<string, [string, string]> = { running: ["ok", "Sched
 					<template v-else>
 						<div class="mb-3 flex flex-wrap gap-1.5"><span v-for="b in d.auto_repeat.by_doctype" :key="b.reference_doctype" class="nxg-chip">{{ b.reference_doctype }} · {{ b.n }}</span></div>
 						<ul class="divide-y divide-nxg-border rounded-nxg border border-nxg-border text-[13px]">
-							<li v-for="a in d.auto_repeat.upcoming" :key="a.name" class="flex justify-between gap-3 px-3 py-2"><a :href="`/desk/auto-repeat/${encodeURIComponent(a.name)}`" class="truncate hover:underline">{{ a.reference_doctype }} {{ a.reference_document }}</a><span class="shrink-0 text-nxg-text-2">{{ a.frequency }} · next {{ a.next_schedule_date }}</span></li>
+							<li v-for="a in d.auto_repeat.upcoming" :key="a.name" class="flex justify-between gap-3 px-3 py-2"><a :href="$href(`/desk/auto-repeat/${encodeURIComponent(a.name)}`)" class="truncate hover:underline">{{ a.reference_doctype }} {{ a.reference_document }}</a><span class="shrink-0 text-nxg-text-2">{{ a.frequency }} · next {{ a.next_schedule_date }}</span></li>
 							<li v-if="!d.auto_repeat.upcoming.length" class="px-3 py-3 text-nxg-text-2">Nothing scheduled.</li>
 						</ul>
 					</template>
@@ -132,7 +132,7 @@ const schedulerTone: Record<string, [string, string]> = { running: ["ok", "Sched
 				<section>
 					<h3 class="mb-2 nxg-micro">Document naming rules</h3>
 					<ul class="divide-y divide-nxg-border rounded-nxg border border-nxg-border text-[13px]">
-						<li v-for="r in d.naming_rules || []" :key="r.name" class="flex items-center gap-3 px-3 py-2"><a :href="`/desk/document-naming-rule/${encodeURIComponent(r.name)}`" class="flex-1 truncate hover:underline">{{ r.document_type }}</a><code class="text-[12px] text-nxg-text-2">{{ r.prefix }}…</code><NxgSwitch :model-value="!r.disabled" :label="`Enable naming rule for ${r.document_type}`" @update:model-value="(v) => setOn('Document Naming Rule', r, 'disabled', 0, v, `naming rule for ${r.document_type}`)" /></li>
+						<li v-for="r in d.naming_rules || []" :key="r.name" class="flex items-center gap-3 px-3 py-2"><a :href="$href(`/desk/document-naming-rule/${encodeURIComponent(r.name)}`)" class="flex-1 truncate hover:underline">{{ r.document_type }}</a><code class="text-[12px] text-nxg-text-2">{{ r.prefix }}…</code><NxgSwitch :model-value="!r.disabled" :label="`Enable naming rule for ${r.document_type}`" @update:model-value="(v) => setOn('Document Naming Rule', r, 'disabled', 0, v, `naming rule for ${r.document_type}`)" /></li>
 						<li v-if="!d.naming_rules?.length" class="px-3 py-3 text-nxg-text-2">No naming rules; DocTypes use their own naming series.</li>
 					</ul>
 					<h3 class="mb-2 mt-5 nxg-micro">Milestone trackers</h3>

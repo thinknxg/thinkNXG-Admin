@@ -10,7 +10,7 @@ defineEmits<{ retry: [] }>();
 </script>
 
 <template>
-	<NxgPanel title="Recent administrative activity" :subtitle="`Users, roles, permissions, workspaces and settings · last ${days} days`" :loading="state.loading && !state.data" :error="state.error" :empty="!!state.data && !state.data.length" empty-text="No administrative changes in this period" href="/desk/version" href-label="Full history" :skeleton-rows="5" @retry="$emit('retry')">
+	<NxgPanel title="Recent administrative activity" :subtitle="`Users, roles, permissions, workspaces and settings · last ${days} days`" :loading="state.loading && !state.data" :error="state.error" :empty="!!state.data && !state.data.length" empty-text="No administrative changes in this period" :href="$href('/desk/version')" href-label="Full history" :skeleton-rows="5" @retry="$emit('retry')">
 		<div class="-mx-4 overflow-x-auto">
 			<table class="w-full min-w-[720px] text-left text-[13px]">
 				<thead>

@@ -25,6 +25,7 @@ import frappe
 from frappe import _
 
 from thinknxg_admin.api.navigation import NAVIGATION, filter_sections
+from thinknxg_admin.api.routes import internal_route
 from thinknxg_admin.api.utils import doctype_exists, is_admin, require_login
 
 DOCS = "https://docs.thinknxg.com"
@@ -34,42 +35,13 @@ PREFERENCE = "thinkNXG User Preference"
 
 # Shared entries every center carries in its Overview section.
 NOTIFICATIONS = {"key": "notifications", "label": "Notifications", "icon": "bell", "route": "/notifications", "status": "live"}
-MY_WORKSPACE = {"key": "my-workspace", "label": "My Workspace", "icon": "user-round", "route": "/my-workspace", "desk": "/desk", "status": "live"}
-REPORTS = {"key": "reports", "label": "Reports", "icon": "chart-column", "route": "/reports", "doctype": "Report", "status": "live", "desk": "/desk/report"}
-
-
-def _desk(key, label, icon, href, doctype, **extra):
-	"""A navigation entry that opens a native thinkNXG screen in the Desk."""
-	return {"key": key, "label": label, "icon": icon, "route": href, "href": href, "doctype": doctype, "status": "desk", **extra}
+MY_WORKSPACE = {"key": "my-workspace", "label": "My Workspace", "icon": "user-round", "route": "/my-workspace", "status": "live"}
+REPORTS = {"key": "reports", "label": "Reports", "icon": "chart-column", "route": "/reports", "doctype": "Report", "status": "live"}
 
 
 ERP_GATE_DOCTYPES = ("GL Entry", "Sales Order", "Purchase Order", "Stock Ledger Entry")
 # Every ERP KPI reads one of these; missing any one makes access "limited".
 ERP_KPI_DOCTYPES = ("GL Entry", "Sales Order", "Purchase Order", "Payment Ledger Entry", "Bin", "Sales Invoice")
-
-ERP_NAVIGATION = [
-	{"section": "Overview", "items": [
-		{"key": "erp-home", "label": "ERP Command Center", "icon": "layout-dashboard", "route": "/erp", "status": "live"},
-		MY_WORKSPACE,
-		NOTIFICATIONS,
-	]},
-	{"section": "Operations", "items": [
-		_desk("erp-accounting", "Accounting", "landmark", "/desk/accounting", "GL Entry"),
-		_desk("erp-selling", "Selling", "shopping-cart", "/desk/selling", "Sales Order"),
-		_desk("erp-buying", "Buying", "shopping-bag", "/desk/buying", "Purchase Order"),
-		_desk("erp-stock", "Stock", "package", "/desk/stock", "Stock Ledger Entry"),
-		_desk("erp-manufacturing", "Manufacturing", "factory", "/desk/manufacturing", "Work Order"),
-		_desk("erp-crm", "CRM", "handshake", "/desk/crm", "Lead"),
-		_desk("erp-projects", "Projects", "folder-kanban", "/desk/projects", "Project"),
-		_desk("erp-assets", "Assets", "box", "/desk/assets", "Asset"),
-		_desk("erp-quality", "Quality", "badge-check", "/desk/quality", "Quality Inspection"),
-	]},
-	{"section": "Insights", "items": [
-		REPORTS,
-		_desk("erp-transactions", "Transactions", "arrow-left-right", "/desk/sales-invoice", "Sales Invoice"),
-		{"key": "erp-approvals", "label": "Approvals", "icon": "stamp", "route": "/erp/approvals", "status": "live"},
-	]},
-]
 
 ERP_QUICK = [
 	("Sales Invoice", "receipt"), ("Sales Order", "shopping-cart"), ("Purchase Order", "shopping-bag"),
@@ -79,30 +51,6 @@ ERP_QUICK = [
 ]
 
 HR_BASE_ROLES = ("HR User", "HR Manager")
-
-HR_NAVIGATION = [
-	{"section": "Overview", "items": [
-		{"key": "hr-home", "label": "HR Command Center", "icon": "layout-dashboard", "route": "/hr", "status": "live"},
-		MY_WORKSPACE,
-		NOTIFICATIONS,
-	]},
-	{"section": "People", "items": [
-		_desk("hr-employees", "Employees", "users", "/desk/employee", "Employee", hr_only=True),
-		_desk("hr-org", "Org Structure", "network", "/desk/organizational-chart", "Employee", hr_only=True),
-		_desk("hr-recruitment", "Recruitment", "user-search", "/desk/recruitment", "Job Opening", hr_only=True),
-		_desk("hr-attendance", "Attendance", "calendar-check", "/desk/attendance", "Attendance"),
-		_desk("hr-leave", "Leave", "plane", "/desk/leaves", "Leave Application"),
-		_desk("hr-shifts", "Shifts", "clock", "/desk/shift-assignment", "Shift Assignment", hr_only=True),
-		_desk("hr-payroll", "Payroll", "wallet", "/desk/payroll", "Payroll Entry", payroll=True),
-		_desk("hr-lifecycle", "Lifecycle", "route", "/desk/tenure", "Employee Onboarding", hr_only=True),
-		_desk("hr-performance", "Performance", "trophy", "/desk/performance", "Appraisal Cycle", hr_only=True),
-		_desk("hr-training", "Training", "graduation-cap", "/desk/training-event", "Training Event", hr_only=True),
-	]},
-	{"section": "Insights", "items": [
-		dict(REPORTS, key="hr-reports", label="HR Reports", hr_only=True),
-		{"key": "hr-approvals", "label": "HR Approvals", "icon": "stamp", "route": "/hr/approvals", "status": "live"},
-	]},
-]
 
 HR_QUICK = [
 	("Employee", "user-plus", True), ("Attendance", "calendar-check", False), ("Leave Application", "plane", False),
@@ -121,7 +69,7 @@ PERSONAL_NAVIGATION = [
 CENTERS = {
 	"admin": {
 		"label": "Admin Command Center", "short": "Admin", "icon": "shield-check",
-		"description": "Users, access, platform and governance", "route": "/",
+		"description": "Users, access, platform and governance", "route": "/admin",
 		"title": "Welcome to thinkNXG Command Center",
 		"subtitle": "Your premium administration command center.",
 		"docs_url": f"{DOCS}/thinknxgframework", "filters": ["company"],
@@ -254,20 +202,29 @@ def validate_company(company: str | None) -> str | None:
 
 # Registry output -----------------------------------------------------------------
 
-def _nav_for(key: str, level: str) -> list[dict]:
+def _center_nav(key: str, level: str, registry: dict) -> list[dict]:
+	"""Overview, one entry per permitted module (from the route registry), insights."""
+	home = {"key": f"{key}-home", "label": CENTERS[key]["label"], "icon": "layout-dashboard", "route": f"/{key}", "status": "live"}
+	overview = [home, {"key": f"{key}-approvals", "label": "Approvals", "icon": "stamp", "route": f"/{key}/approvals", "status": "live"}, MY_WORKSPACE, NOTIFICATIONS]
+	modules = []
+	for m in registry.get("modules", {}).get(key, []):
+		first = m["groups"][0]["items"]
+		modules.append({
+			"key": f"{key}-{m['key']}", "label": m["label"], "icon": m["icon"], "route": f"/{key}/{m['key']}", "status": "live",
+			"children": [{"key": f"{key}-{m['key']}-{d['slug']}", "label": d["doctype"], "route": f"/{key}/{m['key']}/{d['slug']}", "status": "live"} for d in first[:6]],
+		})
+	sections = [{"section": "Overview", "items": overview}]
+	if modules:
+		sections.append({"section": "Modules", "items": modules})
+	if level != "team":
+		sections.append({"section": "Insights", "items": [dict(REPORTS, key=f"{key}-reports")]})
+	return filter_sections(sections)
+
+
+def _nav_for(key: str, level: str, registry: dict) -> list[dict]:
 	if key == "admin":
 		return filter_sections(NAVIGATION)
-	sections = ERP_NAVIGATION if key == "erp" else HR_NAVIGATION
-	payroll = key == "hr" and can_view_payroll()
-
-	def extra(item):
-		if item.get("hr_only") and level == "team":
-			return False
-		if item.get("payroll") and not payroll:
-			return False
-		return True
-
-	return filter_sections(sections, extra=extra)
+	return _center_nav(key, level, registry)
 
 
 def _quick_for(key: str, level: str) -> list[dict]:
@@ -278,16 +235,25 @@ def _quick_for(key: str, level: str) -> list[dict]:
 	else:
 		rows = [(dt, icon) for dt, icon, hr_only in HR_QUICK if not (hr_only and level == "team")]
 	return [
-		{"doctype": dt, "icon": icon, "route": f"/desk/{dt.lower().replace(' ', '-')}/new", "center": key}
+		{"doctype": dt, "icon": icon, "route": internal_route(dt, new=True), "center": key}
 		for dt, icon in rows
 		if doctype_exists(dt) and frappe.has_permission(dt, "create")
 	]
 
 
-def get_centers() -> list[dict]:
+def center_levels() -> dict[str, str]:
+	return {k: lvl for k in CENTER_KEYS if (lvl := center_access(k))}
+
+
+def get_centers(levels: dict | None = None, registry: dict | None = None) -> list[dict]:
+	from thinknxg_admin.api.routes import get_registry
+
+	levels = levels if levels is not None else center_levels()
+	if registry is None:
+		registry = get_registry([{"key": k, "access": v} for k, v in levels.items()])
 	out = []
 	for key in CENTER_KEYS:
-		level = center_access(key)
+		level = levels.get(key)
 		if not level:
 			continue
 		c = CENTERS[key]
@@ -296,7 +262,7 @@ def get_centers() -> list[dict]:
 			"label": c["label"], "short": c["short"], "icon": c["icon"], "description": c["description"],
 			"route": c["route"], "title": c["title"], "subtitle": c["subtitle"], "docs_url": c["docs_url"],
 			"filters": c["filters"], "access": level,
-			"navigation": _nav_for(key, level),
+			"navigation": _nav_for(key, level, registry),
 			"quick_create": _quick_for(key, level),
 		})
 	return out

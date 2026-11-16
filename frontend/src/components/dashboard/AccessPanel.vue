@@ -22,7 +22,7 @@ const roles = computed(() => (props.state.data?.role_distribution || []).map((r:
 </script>
 
 <template>
-	<NxgPanel title="Users & access" :subtitle="state.data?.total_roles ? `${state.data.total_roles} roles defined` : 'Accounts, roles, permissions'" :loading="state.loading && !state.data" :error="state.error" href="/desk/user" href-label="Users" :skeleton-rows="7" @retry="$emit('retry')">
+	<NxgPanel title="Users & access" :subtitle="state.data?.total_roles ? `${state.data.total_roles} roles defined` : 'Accounts, roles, permissions'" :loading="state.loading && !state.data" :error="state.error" :href="$href('/desk/user')" href-label="Users" :skeleton-rows="7" @retry="$emit('retry')">
 		<ul class="mb-3 grid grid-cols-2 gap-x-4">
 			<li v-for="r in rows" :key="r.label">
 				<a :href="r.href" class="flex items-center justify-between gap-2 border-b border-nxg-border py-1.5 text-[12.5px] hover:text-nxg-text" :title="r.hint">

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nav } from "@/lib/links";
 import { computed, onMounted, ref, watch } from "vue";
 import { call, toast } from "frappe-ui";
 import PageHeader from "@/components/ui/PageHeader.vue";
@@ -82,7 +83,7 @@ async function markRead(r: any) {
 }
 async function open(r: any) {
 	await markRead(r);
-	if (r.route) window.location.href = r.route;
+	if (r.route) nav(r.route);
 }
 async function markAll() {
 	if (await runAction(CORE + "mark_all_as_read", {}, "All notifications marked as read")) load();

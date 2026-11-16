@@ -98,14 +98,14 @@ const anyLoading = computed(() => [kpis, activity, access, org, pending, timelin
 				<button class="nxg-btn nxg-btn-secondary h-7" @click="kpis.load(true)">Retry</button>
 			</div>
 			<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-				<NxgKpi label="Total users" icon="users" :loading="kpis.state.loading && !kpis.state.data" :value="k.total_users?.value" :delta="k.total_users?.delta" delta-label="new vs prev." :secondary="k.total_users?.secondary != null ? `${k.total_users.secondary} new` : null" href="/desk/user?enabled=1" hint="Enabled System Users, excluding Administrator and Guest" />
-				<NxgKpi label="Active users" icon="activity" :loading="kpis.state.loading && !kpis.state.data" :value="k.active_users?.value" :delta="k.active_users?.delta" delta-label="vs prev. period" :trend="trend" href="/desk/activity-log?operation=Login" :hint="`Distinct people who signed in during the last ${shell.days} days`" />
-				<NxgKpi label="Companies" icon="building-2" :loading="kpis.state.loading && !kpis.state.data" :value="k.companies?.value" href="/desk/company" />
-				<NxgKpi label="Active workspaces" icon="panels-top-left" :loading="kpis.state.loading && !kpis.state.data" :value="k.workspaces?.value" href="/desk/workspace" hint="Public, not hidden" />
-				<NxgKpi label="Installed apps" icon="blocks" :loading="kpis.state.loading && !kpis.state.data" :value="k.installed_apps?.value" :secondary="k.installed_apps?.items?.slice(0, 3).join(', ')" href="/desk/installed-applications" />
-				<NxgKpi label="Enabled modules" icon="layers" :loading="kpis.state.loading && !kpis.state.data" :value="k.modules?.value" secondary="across installed apps" href="/desk/module-def" />
-				<NxgKpi label="Pending approvals" icon="circle-check" :loading="kpis.state.loading && !kpis.state.data" :value="k.pending_approvals?.value" :secondary="k.pending_approvals?.secondary ? `${k.pending_approvals.secondary} older than ${shell.days}d` : null" href="/desk/workflow-action?status=Open" hint="Open Workflow Actions" />
-				<NxgKpi label="Background jobs" icon="list-checks" :loading="kpis.state.loading && !kpis.state.data" :value="k.background_jobs?.value" :secondary="k.background_jobs?.secondary != null ? `${k.background_jobs.secondary} failed` : null" href="/desk/rq-job" hint="Queued + running jobs in RQ" />
+				<NxgKpi label="Total users" icon="users" :loading="kpis.state.loading && !kpis.state.data" :value="k.total_users?.value" :delta="k.total_users?.delta" delta-label="new vs prev." :secondary="k.total_users?.secondary != null ? `${k.total_users.secondary} new` : null" :href="$href('/desk/user?enabled=1')" hint="Enabled System Users, excluding Administrator and Guest" />
+				<NxgKpi label="Active users" icon="activity" :loading="kpis.state.loading && !kpis.state.data" :value="k.active_users?.value" :delta="k.active_users?.delta" delta-label="vs prev. period" :trend="trend" :href="$href('/desk/activity-log?operation=Login')" :hint="`Distinct people who signed in during the last ${shell.days} days`" />
+				<NxgKpi label="Companies" icon="building-2" :loading="kpis.state.loading && !kpis.state.data" :value="k.companies?.value" :href="$href('/desk/company')" />
+				<NxgKpi label="Active workspaces" icon="panels-top-left" :loading="kpis.state.loading && !kpis.state.data" :value="k.workspaces?.value" :href="$href('/desk/workspace')" hint="Public, not hidden" />
+				<NxgKpi label="Installed apps" icon="blocks" :loading="kpis.state.loading && !kpis.state.data" :value="k.installed_apps?.value" :secondary="k.installed_apps?.items?.slice(0, 3).join(', ')" :href="$href('/desk/installed-applications')" />
+				<NxgKpi label="Enabled modules" icon="layers" :loading="kpis.state.loading && !kpis.state.data" :value="k.modules?.value" secondary="across installed apps" :href="$href('/desk/module-def')" />
+				<NxgKpi label="Pending approvals" icon="circle-check" :loading="kpis.state.loading && !kpis.state.data" :value="k.pending_approvals?.value" :secondary="k.pending_approvals?.secondary ? `${k.pending_approvals.secondary} older than ${shell.days}d` : null" :href="$href('/desk/workflow-action?status=Open')" hint="Open Workflow Actions" />
+				<NxgKpi label="Background jobs" icon="list-checks" :loading="kpis.state.loading && !kpis.state.data" :value="k.background_jobs?.value" :secondary="k.background_jobs?.secondary != null ? `${k.background_jobs.secondary} failed` : null" :href="$href('/desk/rq-job')" hint="Queued + running jobs in RQ" />
 			</div>
 		</section>
 

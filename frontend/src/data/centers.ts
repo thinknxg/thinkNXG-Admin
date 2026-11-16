@@ -6,13 +6,13 @@ import { router } from "@/router";
 
 /** Route prefixes owned by a center. Every other route belongs to Admin when the
  *  user has it, or is shared (Notifications, My Workspace, Reports). */
-const PREFIX: Partial<Record<CenterKey, string>> = { erp: "/erp", hr: "/hr" };
-const SHARED = ["/notifications", "/my-workspace", "/reports"];
+const PREFIX: Record<CenterKey, string> = { admin: "/admin", erp: "/erp", hr: "/hr" };
 
+/** The center that owns a path, or null for shared pages (Notifications, My
+ *  Workspace, Reports, not-found), which keep the last center's sidebar. */
 export function centerForPath(path: string): CenterKey | null {
 	for (const [key, prefix] of Object.entries(PREFIX)) if (path === prefix || path.startsWith(prefix + "/")) return key as CenterKey;
-	if (SHARED.some((p) => path === p || path.startsWith(p + "/"))) return null;
-	return "admin";
+	return null;
 }
 
 const local = readPref<{ last?: CenterKey; state?: Partial<Record<CenterKey, CenterState>> }>("centers", {});
@@ -58,7 +58,7 @@ export function stateFor(key: CenterKey): CenterState {
 /** Route that opens a center: the page last visited in it, else its home. */
 export function entryRoute(c: Center): string {
 	const last = centers.state[c.key]?.last_route;
-	if (last && centerForPath(last) === c.key) return last;
+	if (last && centerForPath(last.split("?")[0]) === c.key) return last;
 	return c.route;
 }
 

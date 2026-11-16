@@ -21,7 +21,7 @@ const day = (d: string) => new Date(d + "T00:00:00").toLocaleDateString(undefine
 <template>
 	<div v-if="data?.restricted" class="py-2"><NxgRestricted /></div>
 	<div v-else-if="data?.available === false" class="py-2"><NxgEmpty text="This area is not installed on this site." /></div>
-	<div v-else-if="data" class="grid gap-6 pt-1 lg:grid-cols-2">
+	<div v-else-if="data" class="grid min-w-0 grid-cols-1 gap-6 pt-1 lg:grid-cols-2 [&>*]:min-w-0">
 		<!-- Sales -->
 		<template v-if="section === 'sales'">
 			<div class="lg:col-span-2">

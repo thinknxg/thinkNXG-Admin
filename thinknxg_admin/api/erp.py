@@ -20,7 +20,8 @@ from frappe.utils import add_days, date_diff, flt, getdate, today
 from thinknxg_admin.api.cache import cached_panel
 from thinknxg_admin.api.centers import permitted_companies, require_center, validate_company
 from thinknxg_admin.api.figures import Missing, Restricted, _between, _check, _count, _figure, _one, _part, _q, _quiet
-from thinknxg_admin.api.utils import delta, desk_route, doctype_exists, has_field, slug
+from thinknxg_admin.api.routes import report_route
+from thinknxg_admin.api.utils import delta, desk_route, doctype_exists, has_field
 
 SECTIONS = ("sales", "finance", "purchase", "inventory", "manufacturing", "projects", "crm")
 OPEN_SO = ["To Deliver and Bill", "To Bill", "To Deliver"]
@@ -91,10 +92,9 @@ def _accounts(ctx, **filters) -> list[str]:
 
 
 def _list_route(doctype, **params):
-	from urllib.parse import urlencode
+	from thinknxg_admin.api.routes import internal_route
 
-	q = urlencode({k: v for k, v in params.items() if v is not None})
-	return f"/desk/{slug(doctype)}" + (f"?{q}" if q else "")
+	return internal_route(doctype, filters={k: v for k, v in params.items() if v is not None} or None)
 
 
 # KPIs -------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ def kpi_revenue(ctx):
 	income = _accounts(ctx, root_type="Income")
 	cur = _gl_sum(ctx, income, ctx.start, ctx.end)
 	prev = _gl_sum(ctx, income, ctx.prev_start, ctx.prev_end)
-	return {"value": cur, "delta": delta(cur, prev), "currency": ctx.currency, "route": "/desk/query-report/Profit and Loss Statement"}
+	return {"value": cur, "delta": delta(cur, prev), "currency": ctx.currency, "route": report_route("Profit and Loss Statement", "erp")}
 
 
 def kpi_gross_profit(ctx):
@@ -124,7 +124,7 @@ def kpi_gross_profit(ctx):
 	prev = _gl_sum(ctx, income, ctx.prev_start, ctx.prev_end) - _gl_sum(ctx, cogs, ctx.prev_start, ctx.prev_end, sign=-1)
 	rev = _gl_sum(ctx, income, ctx.start, ctx.end)
 	margin = round(cur * 100.0 / rev, 1) if rev else None
-	return {"value": cur, "delta": delta(cur, prev), "secondary": margin, "currency": ctx.currency, "route": "/desk/query-report/Gross Profit"}
+	return {"value": cur, "delta": delta(cur, prev), "secondary": margin, "currency": ctx.currency, "route": report_route("Gross Profit", "erp")}
 
 
 def kpi_cash_bank(ctx):
@@ -134,7 +134,7 @@ def kpi_cash_bank(ctx):
 		return {"value": 0.0, "currency": ctx.currency}
 	r = _one("GL Entry", [{"SUM": "debit", "as": "dr"}, {"SUM": "credit", "as": "cr"}],
 		_f(ctx, "GL Entry", {"account": ["in", accounts], "is_cancelled": 0, "posting_date": ["<=", ctx.end]}))
-	return {"value": flt(r.dr) - flt(r.cr), "currency": ctx.currency, "secondary": len(accounts), "route": "/desk/query-report/General Ledger"}
+	return {"value": flt(r.dr) - flt(r.cr), "currency": ctx.currency, "secondary": len(accounts), "route": report_route("General Ledger", "erp")}
 
 
 def _ple_balance(ctx, account_type):
@@ -145,12 +145,12 @@ def _ple_balance(ctx, account_type):
 
 def kpi_receivables(ctx):
 	_check("Payment Ledger Entry")
-	return {"value": _ple_balance(ctx, "Receivable"), "currency": ctx.currency, "route": "/desk/query-report/Accounts Receivable"}
+	return {"value": _ple_balance(ctx, "Receivable"), "currency": ctx.currency, "route": report_route("Accounts Receivable", "erp")}
 
 
 def kpi_payables(ctx):
 	_check("Payment Ledger Entry")
-	return {"value": _ple_balance(ctx, "Payable"), "currency": ctx.currency, "route": "/desk/query-report/Accounts Payable"}
+	return {"value": _ple_balance(ctx, "Payable"), "currency": ctx.currency, "route": report_route("Accounts Payable", "erp")}
 
 
 def _open_orders(ctx, doctype, statuses):
@@ -177,7 +177,7 @@ def kpi_inventory(ctx):
 	if not warehouses:
 		return {"value": 0.0, "currency": ctx.currency}
 	r = _one("Bin", [{"SUM": "stock_value", "as": "v"}], {"warehouse": ["in", warehouses]})
-	return {"value": flt(r.v), "currency": ctx.currency, "secondary": len(warehouses), "route": "/desk/query-report/Stock Balance"}
+	return {"value": flt(r.v), "currency": ctx.currency, "secondary": len(warehouses), "route": report_route("Stock Balance", "erp")}
 
 
 def kpi_outstanding(ctx):

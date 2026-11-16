@@ -278,21 +278,21 @@ def get_pending_actions():
 	alerts = []
 	unseen = safe_count("Error Log", {"seen": 0}) if has_field("Error Log", "seen") else None
 	if unseen:
-		alerts.append({"kind": "alert", "severity": "critical", "title": f"{unseen} unseen error log{'s' if unseen != 1 else ''}", "subtitle": "Server exceptions recorded on this site", "route": "/desk/error-log?seen=0"})
+		alerts.append({"kind": "alert", "severity": "critical", "title": f"{unseen} unseen error log{'s' if unseen != 1 else ''}", "subtitle": "Server exceptions recorded on this site", "route": "/thinknxg/admin/developer"})
 
 	try:
 		from frappe.utils.scheduler import is_scheduler_disabled, is_scheduler_inactive
 
 		if is_scheduler_disabled():
-			alerts.append({"kind": "alert", "severity": "warning", "title": "Scheduler is disabled", "subtitle": "Scheduled jobs and emails will not run", "route": "/desk/system-settings"})
+			alerts.append({"kind": "alert", "severity": "warning", "title": "Scheduler is disabled", "subtitle": "Scheduled jobs and emails will not run", "route": "/thinknxg/admin/configuration"})
 		elif is_scheduler_inactive():
-			alerts.append({"kind": "alert", "severity": "warning", "title": "Scheduler is inactive", "subtitle": "No scheduler activity detected recently", "route": "/desk/scheduled-job-type"})
+			alerts.append({"kind": "alert", "severity": "warning", "title": "Scheduler is inactive", "subtitle": "No scheduler activity detected recently", "route": "/thinknxg/admin/automation"})
 	except Exception:
 		pass
 
 	jobs = _rq_job_counts()
 	if jobs and jobs["failed"]:
-		alerts.append({"kind": "alert", "severity": "serious", "title": f"{jobs['failed']} failed background job{'s' if jobs['failed'] != 1 else ''}", "subtitle": "Inspect and retry from RQ Job", "route": "/desk/rq-job?status=failed"})
+		alerts.append({"kind": "alert", "severity": "serious", "title": f"{jobs['failed']} failed background job{'s' if jobs['failed'] != 1 else ''}", "subtitle": "Inspect and retry from RQ Job", "route": "/thinknxg/admin/system-health"})
 
 	actions.sort(key=lambda a: a.get("creation") or "", reverse=True)
 	return {"alerts": alerts, "actions": actions[:8], "approval_count": safe_count("Workflow Action", {"status": "Open"}), "todo_count": safe_count("ToDo", {"allocated_to": user, "status": "Open"})}

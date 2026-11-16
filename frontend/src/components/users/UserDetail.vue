@@ -187,7 +187,7 @@ const roleOptions = computed(() => (props.options?.roles || []).map((r: any) => 
 					<div class="flex justify-between px-3 py-2"><dt class="text-nxg-text-2">IP restriction</dt><dd class="truncate pl-4">{{ user.restrict_ip || "None" }}</dd></div>
 					<div class="flex justify-between px-3 py-2"><dt class="text-nxg-text-2">Created</dt><dd>{{ fmtDateTime(user.creation) }}</dd></div>
 				</dl>
-				<a :href="`/desk/user/${encodeURIComponent(user.name)}`" class="nxg-btn nxg-btn-ghost">Open full record in Desk<Icon name="external-link" :size="13" /></a>
+				<a :href="`/thinknxg/admin/doc/user/${encodeURIComponent(user.name)}`" class="nxg-btn nxg-btn-ghost">Open full record<Icon name="chevron-right" :size="13" /></a>
 			</div>
 
 			<div v-else class="space-y-5 p-5">
@@ -205,7 +205,7 @@ const roleOptions = computed(() => (props.options?.roles || []).map((r: any) => 
 				<div>
 					<h3 class="mb-1.5 nxg-micro">Recent changes made by this user</h3>
 					<ul class="divide-y divide-nxg-border text-[13px]">
-						<li v-for="v in user.recent_changes" :key="v.name" class="flex items-center justify-between gap-2 py-1.5"><a :href="`/desk/${v.ref_doctype.toLowerCase().replace(/ /g, '-')}/${encodeURIComponent(v.docname)}`" class="nxg-link truncate">{{ v.ref_doctype }} · {{ v.docname }}</a><span class="shrink-0 text-nxg-text-2">{{ timeAgo(v.creation) }}</span></li>
+						<li v-for="v in user.recent_changes" :key="v.name" class="flex items-center justify-between gap-2 py-1.5"><a :href="$href(`/desk/${v.ref_doctype.toLowerCase().replace(/ /g, '-')}/${encodeURIComponent(v.docname)}`)" class="nxg-link truncate">{{ v.ref_doctype }} · {{ v.docname }}</a><span class="shrink-0 text-nxg-text-2">{{ timeAgo(v.creation) }}</span></li>
 						<li v-if="!user.recent_changes.length" class="py-3 text-nxg-text-2">No tracked changes.</li>
 					</ul>
 				</div>

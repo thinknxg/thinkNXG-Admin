@@ -92,10 +92,11 @@ def slug(doctype: str) -> str:
 
 
 def desk_route(doctype: str | None, name: str | None = None) -> str:
-	"""V16 Desk lives at /desk (/app only redirects there)."""
-	if not doctype:
-		return "/desk"
-	return f"/desk/{slug(doctype)}/{name}" if name else f"/desk/{slug(doctype)}"
+	"""Internal thinkNXG address for a DocType list or document (kept under its
+	old name so every caller moved to internal routes at once)."""
+	from thinknxg_admin.api.routes import internal_route
+
+	return internal_route(doctype, name)
 
 
 def delta(current, previous):

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nav } from "@/lib/links";
 import { computed, ref, watch } from "vue";
 import { call } from "frappe-ui";
 import PageHeader from "@/components/ui/PageHeader.vue";
@@ -76,7 +77,7 @@ const irSummary = computed(() => {
 	return out;
 });
 function openEmail(r: any) {
-	window.location.href = `/desk/email-account/${encodeURIComponent(r.name)}`;
+	nav(`/desk/email-account/${encodeURIComponent(r.name)}`);
 }
 const statusTone: Record<string, string> = { Completed: "success", Authorized: "success", Queued: "info", Failed: "failed", Cancelled: "unknown" };
 </script>
@@ -84,7 +85,7 @@ const statusTone: Record<string, string> = { Completed: "success", Authorized: "
 <template>
 	<div class="mx-auto w-full max-w-[1480px] px-4 pb-10 pt-6 sm:px-6">
 		<PageHeader title="Integrations" description="Webhooks, email, OAuth and connected apps, API keys and integration traffic. Secrets are never shown here.">
-			<a href="/desk/webhook/new" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Webhook</a>
+			<a :href="$href('/desk/webhook/new')" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Webhook</a>
 			<button class="nxg-icon-btn" aria-label="Reload" @click="ov.load(true)"><Icon name="refresh-cw" :size="15" :class="ov.state.loading && 'animate-spin'" /></button>
 		</PageHeader>
 
@@ -108,10 +109,10 @@ const statusTone: Record<string, string> = { Completed: "success", Authorized: "
 			<div class="grid grid-cols-3 gap-3">
 				<div class="nxg-panel px-4 py-3"><div class="text-[12px] text-nxg-text-2">Sent (24 h)</div><div class="nxg-tnum text-[20px] font-semibold">{{ fmtNumber(d.email_queue?.sent_24h) }}</div></div>
 				<div class="nxg-panel px-4 py-3"><div class="text-[12px] text-nxg-text-2">Waiting to send</div><div class="nxg-tnum text-[20px] font-semibold">{{ fmtNumber(d.email_queue?.pending) }}</div></div>
-				<a href="/desk/email-queue?status=Error" class="nxg-panel px-4 py-3 hover:border-nxg-border-strong"><div class="text-[12px] text-nxg-text-2">Errors (24 h)</div><div class="nxg-tnum text-[20px] font-semibold" :class="d.email_queue?.errors_24h && 'text-nxg-danger'">{{ fmtNumber(d.email_queue?.errors_24h) }}</div></a>
+				<a :href="$href('/desk/email-queue?status=Error')" class="nxg-panel px-4 py-3 hover:border-nxg-border-strong"><div class="text-[12px] text-nxg-text-2">Errors (24 h)</div><div class="nxg-tnum text-[20px] font-semibold" :class="d.email_queue?.errors_24h && 'text-nxg-danger'">{{ fmtNumber(d.email_queue?.errors_24h) }}</div></a>
 			</div>
 			<div class="nxg-panel">
-				<NxgEmpty v-if="!d.email_accounts?.length" text="No email accounts" icon="inbox"><a href="/desk/email-account/new" class="nxg-btn nxg-btn-secondary mt-2 h-7">Add email account</a></NxgEmpty>
+				<NxgEmpty v-if="!d.email_accounts?.length" text="No email accounts" icon="inbox"><a :href="$href('/desk/email-account/new')" class="nxg-btn nxg-btn-secondary mt-2 h-7">Add email account</a></NxgEmpty>
 				<DataTable v-else :columns="[{ key: 'email_account_name', label: 'Account' }, { key: 'service', label: 'Service' }, { key: 'flow', label: 'Direction' }, { key: 'sent_7d', label: 'Sent (7 d)', align: 'right' }, { key: 'errors_7d', label: 'Errors (7 d)', align: 'right' }, { key: 'pending', label: 'Pending', align: 'right' }]" :rows="d.email_accounts" clickable @row-click="openEmail">
 					<template #cell-email_account_name="{ row }"><span class="font-medium">{{ row.email_account_name || row.name }}</span><span class="block text-[12px] text-nxg-text-2">{{ row.email_id }}</span></template>
 					<template #cell-flow="{ row }"><span class="flex flex-wrap gap-1"><span v-if="row.enable_incoming" class="nxg-chip">Incoming{{ row.default_incoming ? " · default" : "" }}</span><span v-if="row.enable_outgoing" class="nxg-chip">Outgoing{{ row.default_outgoing ? " · default" : "" }}</span><span v-if="!row.enable_incoming && !row.enable_outgoing" class="text-nxg-text-3">Inactive</span></span></template>
@@ -122,14 +123,14 @@ const statusTone: Record<string, string> = { Completed: "success", Authorized: "
 
 		<div v-else-if="tab === 'oauth'" class="grid grid-cols-1 gap-4 xl:grid-cols-2">
 			<section class="nxg-panel">
-				<header class="flex items-center justify-between border-b border-nxg-border px-4 py-3"><div><h2 class="text-[15px] font-semibold">OAuth clients</h2><p class="text-[12.5px] text-nxg-text-2">Apps allowed to sign in users of this site and call its API</p></div><a href="/desk/oauth-client/new" class="nxg-btn nxg-btn-ghost h-7">New</a></header>
+				<header class="flex items-center justify-between border-b border-nxg-border px-4 py-3"><div><h2 class="text-[15px] font-semibold">OAuth clients</h2><p class="text-[12.5px] text-nxg-text-2">Apps allowed to sign in users of this site and call its API</p></div><a :href="$href('/desk/oauth-client/new')" class="nxg-btn nxg-btn-ghost h-7">New</a></header>
 				<NxgEmpty v-if="!d.oauth_clients?.length" text="No OAuth clients" icon="key-round" />
-				<ul v-else class="divide-y divide-nxg-border"><li v-for="c in d.oauth_clients" :key="c.name" class="flex items-center gap-3 px-4 py-2.5 text-[13px]"><a :href="`/desk/oauth-client/${encodeURIComponent(c.name)}`" class="min-w-0 flex-1"><span class="block truncate font-medium hover:underline">{{ c.app_name }}</span><span class="block truncate text-[12px] text-nxg-text-2">{{ c.grant_type }} · {{ c.scopes.join(", ") || "no scopes" }} · {{ c.redirect || "no redirect" }}</span></a><span class="nxg-tnum text-[12px] text-nxg-text-2">{{ c.active_tokens }} active token{{ c.active_tokens === 1 ? "" : "s" }}</span></li></ul>
+				<ul v-else class="divide-y divide-nxg-border"><li v-for="c in d.oauth_clients" :key="c.name" class="flex items-center gap-3 px-4 py-2.5 text-[13px]"><a :href="$href(`/desk/oauth-client/${encodeURIComponent(c.name)}`)" class="min-w-0 flex-1"><span class="block truncate font-medium hover:underline">{{ c.app_name }}</span><span class="block truncate text-[12px] text-nxg-text-2">{{ c.grant_type }} · {{ c.scopes.join(", ") || "no scopes" }} · {{ c.redirect || "no redirect" }}</span></a><span class="nxg-tnum text-[12px] text-nxg-text-2">{{ c.active_tokens }} active token{{ c.active_tokens === 1 ? "" : "s" }}</span></li></ul>
 			</section>
 			<section class="nxg-panel">
-				<header class="flex items-center justify-between border-b border-nxg-border px-4 py-3"><div><h2 class="text-[15px] font-semibold">Connected apps</h2><p class="text-[12.5px] text-nxg-text-2">External services this site signs in to</p></div><a href="/desk/connected-app/new" class="nxg-btn nxg-btn-ghost h-7">New</a></header>
+				<header class="flex items-center justify-between border-b border-nxg-border px-4 py-3"><div><h2 class="text-[15px] font-semibold">Connected apps</h2><p class="text-[12.5px] text-nxg-text-2">External services this site signs in to</p></div><a :href="$href('/desk/connected-app/new')" class="nxg-btn nxg-btn-ghost h-7">New</a></header>
 				<NxgEmpty v-if="!d.connected_apps?.length" text="No connected apps" icon="plug" />
-				<ul v-else class="divide-y divide-nxg-border"><li v-for="a in d.connected_apps" :key="a.name" class="flex items-center gap-3 px-4 py-2.5 text-[13px]"><a :href="`/desk/connected-app/${encodeURIComponent(a.name)}`" class="min-w-0 flex-1"><span class="block truncate font-medium hover:underline">{{ a.provider_name || a.name }}</span><span class="block truncate text-[12px] text-nxg-text-2">{{ a.authorization_uri || "—" }}</span></a><span class="nxg-tnum text-[12px] text-nxg-text-2">{{ a.connected_users }} user{{ a.connected_users === 1 ? "" : "s" }} connected</span></li></ul>
+				<ul v-else class="divide-y divide-nxg-border"><li v-for="a in d.connected_apps" :key="a.name" class="flex items-center gap-3 px-4 py-2.5 text-[13px]"><a :href="$href(`/desk/connected-app/${encodeURIComponent(a.name)}`)" class="min-w-0 flex-1"><span class="block truncate font-medium hover:underline">{{ a.provider_name || a.name }}</span><span class="block truncate text-[12px] text-nxg-text-2">{{ a.authorization_uri || "—" }}</span></a><span class="nxg-tnum text-[12px] text-nxg-text-2">{{ a.connected_users }} user{{ a.connected_users === 1 ? "" : "s" }} connected</span></li></ul>
 			</section>
 			<section class="nxg-panel xl:col-span-2">
 				<header class="border-b border-nxg-border px-4 py-3"><h2 class="text-[15px] font-semibold">Social sign-in providers</h2></header>
@@ -174,7 +175,7 @@ const statusTone: Record<string, string> = { Completed: "success", Authorized: "
 		</div>
 
 		<NxgDrawer :open="!!logsFor && tab === 'webhooks'" :title="`Deliveries · ${logsFor}`" subtitle="Most recent first. Request headers are never shown." width="max-w-[720px]" @close="logsFor = null">
-			<div class="flex items-center gap-2 border-b border-nxg-border px-5 py-2.5"><label class="flex items-center gap-2 text-[12.5px] text-nxg-text-2"><NxgSwitch v-model="onlyErrors" label="Errors only" />Errors only</label><a :href="`/desk/webhook/${encodeURIComponent(logsFor || '')}`" class="nxg-btn nxg-btn-ghost ml-auto h-7">Edit webhook<Icon name="external-link" :size="12" /></a></div>
+			<div class="flex items-center gap-2 border-b border-nxg-border px-5 py-2.5"><label class="flex items-center gap-2 text-[12.5px] text-nxg-text-2"><NxgSwitch v-model="onlyErrors" label="Errors only" />Errors only</label><a :href="$href(`/desk/webhook/${encodeURIComponent(logsFor || '')}`)" class="nxg-btn nxg-btn-ghost ml-auto h-7">Edit webhook<Icon name="external-link" :size="12" /></a></div>
 			<div v-if="logsLoading" class="space-y-2 p-5"><div v-for="i in 6" :key="i" class="nxg-skeleton h-10" /></div>
 			<NxgEmpty v-else-if="!logs?.rows?.length" text="No deliveries recorded" />
 			<ul v-else class="divide-y divide-nxg-border">

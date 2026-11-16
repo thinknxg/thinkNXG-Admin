@@ -70,7 +70,7 @@ async function saveProfile() {
 								<td class="nxg-tnum px-3 text-right">{{ m.doctypes }}</td>
 								<td class="px-3"><span class="flex flex-wrap gap-1"><span v-for="p in m.blocked_in_profiles" :key="p" class="nxg-chip">{{ p }}</span><span v-if="!m.blocked_in_profiles.length" class="text-nxg-text-3">—</span></span></td>
 								<td class="nxg-tnum px-3 text-right" :class="m.blocked_users ? '' : 'text-nxg-text-3'">{{ m.blocked_users || "—" }}</td>
-								<td class="px-4 text-right"><a :href="`/desk/module-def/${encodeURIComponent(m.name)}`" class="nxg-btn nxg-btn-ghost h-7">Open<Icon name="external-link" :size="12" /></a></td>
+								<td class="px-4 text-right"><a :href="$href(`/desk/module-def/${encodeURIComponent(m.name)}`)" class="nxg-btn nxg-btn-ghost h-7">Open<Icon name="external-link" :size="12" /></a></td>
 							</tr>
 							<tr v-if="!a.modules.length"><td colspan="5" class="px-4 py-4 text-nxg-text-2">This app defines no modules.</td></tr>
 						</tbody>

@@ -24,11 +24,12 @@ function toggleSection(name: string) {
 const docsUrl = computed(() => activeCenter.value?.docs_url || b.value.brand.docs_url);
 function isActive(item: NavItem) {
 	if (item.href) return false;
-	if (item.route === "/") return route.path === "/";
+	// Center homes are active only on their own page, not on every page below them.
+	if (["/", "/admin", "/erp", "/hr"].includes(item.route)) return route.path === item.route;
 	return route.path === item.route || route.path.startsWith(item.route + "/");
 }
 function childActive(item: NavItem) {
-	return (item.children || []).some((c) => route.path === c.route);
+	return (item.children || []).some((c) => route.path === c.route || route.path.startsWith(c.route + "/"));
 }
 function expanded(item: NavItem) {
 	return openItems[item.key] ?? (isActive(item) || childActive(item));
@@ -75,7 +76,7 @@ async function logout() {
 								:href="item.href"
 								class="group/desk flex h-8 items-center gap-2.5 rounded-nxg px-2.5 text-[13px] transition-colors hover:bg-[var(--nxg-sidebar-hover)] hover:text-white"
 								:class="collapsed && 'justify-center px-0'"
-								:title="collapsed ? `${item.label} (opens in Desk)` : 'Opens in Desk'"
+								:title="collapsed ? item.label : undefined"
 							>
 								<Icon :name="item.icon" :size="16" />
 								<span v-if="!collapsed" class="min-w-0 flex-1 truncate">{{ item.label }}</span>
@@ -108,7 +109,7 @@ async function logout() {
 								<RouterLink
 									:to="child.route"
 									class="flex h-7 items-center rounded-nxg-sm px-2 text-[12.5px] transition-colors"
-									:class="route.path === child.route ? 'bg-[var(--nxg-sidebar-active)] font-medium text-white' : 'hover:bg-[var(--nxg-sidebar-hover)] hover:text-white'"
+									:class="route.path === child.route || route.path.startsWith(child.route + '/') ? 'bg-[var(--nxg-sidebar-active)] font-medium text-white' : 'hover:bg-[var(--nxg-sidebar-hover)] hover:text-white'"
 									@click="onNavigate"
 								>{{ child.label }}</RouterLink>
 							</li>
@@ -136,8 +137,8 @@ async function logout() {
 						<Icon v-if="!collapsed" name="chevrons-up-down" :size="14" class="text-nxg-sb-muted" />
 					</button>
 				</template>
-				<MenuItem label="My profile" icon="user" :href="`/desk/user/${encodeURIComponent(b.user.name)}`" />
-				<MenuItem v-if="b.user.is_admin" label="Command Center settings" icon="settings" href="/desk/thinknxg-admin-settings" />
+				<MenuItem label="My profile" icon="user" :href="$href(`/desk/user/${encodeURIComponent(b.user.name)}`)" />
+				<MenuItem v-if="b.user.is_admin" label="Command Center settings" icon="settings" :href="$href('/desk/thinknxg-admin-settings')" />
 				<MenuItem label="Keyboard shortcuts" icon="command" hint="?" @click="shell.shortcutsOpen = true" />
 				<div class="my-1 border-t border-nxg-border" />
 				<MenuItem label="Log out" icon="log-out" @click="logout" />

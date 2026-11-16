@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nav } from "@/lib/links";
 import { computed, reactive, ref, watch } from "vue";
 import { call, toast } from "frappe-ui";
 import NxgPanel from "@/components/ui/NxgPanel.vue";
@@ -62,8 +63,7 @@ async function savePrefs() {
 const themes: { mode: ThemeMode; label: string; icon: string }[] = [{ mode: "light", label: "Light", icon: "sun" }, { mode: "dark", label: "Dark", icon: "moon" }, { mode: "system", label: "System", icon: "monitor" }];
 const shortcuts = computed(() => [...favorites.value, ...recent.value.filter((r) => !favorites.value.some((f) => f.route === r.route))].slice(0, 8));
 function go(route: string) {
-	if (route.startsWith("/desk") || route.startsWith("http")) window.location.href = route;
-	else window.location.href = "/thinknxg" + (route === "/" ? "" : route);
+	nav(route.startsWith("/desk") || route.startsWith("http") || route.startsWith("/thinknxg") ? route : "/thinknxg" + (route === "/" ? "" : route));
 }
 </script>
 
@@ -82,7 +82,7 @@ function go(route: string) {
 				</div>
 			</div>
 			<div class="flex flex-wrap gap-2">
-				<a v-if="d.preferences?.default_workspace" :href="`/desk/${d.preferences.default_workspace.toLowerCase().replace(/ /g, '-')}`" class="nxg-btn nxg-btn-primary"><Icon name="panels-top-left" :size="14" />Open {{ d.preferences.default_workspace }}</a>
+				<a v-if="d.preferences?.default_workspace" :href="$href(`/desk/${d.preferences.default_workspace.toLowerCase().replace(/ /g, '-')}`)" class="nxg-btn nxg-btn-primary"><Icon name="panels-top-left" :size="14" />Open {{ d.preferences.default_workspace }}</a>
 				<button class="nxg-btn nxg-btn-secondary" @click="openPrefs"><Icon name="settings" :size="14" />Preferences</button>
 			</div>
 		</div>
@@ -90,7 +90,7 @@ function go(route: string) {
 		<div v-if="ws.state.error" class="nxg-panel mb-4 p-4 text-[13px] text-nxg-danger">{{ ws.state.error }} <button class="nxg-btn nxg-btn-secondary ml-2 h-7" @click="ws.load(true)">Retry</button></div>
 
 		<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-			<NxgPanel class="xl:col-span-2" title="My tasks" :subtitle="d.todos ? `${d.todos.length} open, assigned to you` : ''" :loading="ws.state.loading && !ws.state.data" :empty="!!ws.state.data && !d.todos.length" empty-text="No open tasks. Nice." href="/desk/todo?status=Open" href-label="All tasks" :skeleton-rows="6">
+			<NxgPanel class="xl:col-span-2" title="My tasks" :subtitle="d.todos ? `${d.todos.length} open, assigned to you` : ''" :loading="ws.state.loading && !ws.state.data" :empty="!!ws.state.data && !d.todos.length" empty-text="No open tasks. Nice." :href="$href('/desk/todo?status=Open')" href-label="All tasks" :skeleton-rows="6">
 				<ul class="divide-y divide-nxg-border">
 					<li v-for="t in d.todos" :key="t.name" class="group flex items-start gap-3 py-2.5" :class="closing.has(t.name) && 'opacity-50'">
 						<button class="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-nxg-border-strong text-transparent transition-colors hover:border-nxg-success hover:text-nxg-success" :aria-label="`Mark done: ${t.description}`" :disabled="closing.has(t.name)" @click="done(t)"><Icon name="check" :size="12" :stroke-width="2.5" /></button>
@@ -130,7 +130,7 @@ function go(route: string) {
 					<button v-for="s in shortcuts" :key="s.route" class="inline-flex h-7 items-center gap-1.5 rounded-nxg-sm border border-nxg-border px-2 text-[12.5px] hover:border-nxg-border-strong" @click="go(s.route)"><Icon :name="s.icon || 'star'" :size="13" class="text-nxg-text-2" />{{ s.label }}</button>
 				</div>
 				<div v-if="d.visited?.length">
-					<div class="mb-1 nxg-micro">Recently visited in Desk</div>
+					<div class="mb-1 nxg-micro">Recently visited</div>
 					<ul class="divide-y divide-nxg-border"><li v-for="v in d.visited" :key="v.route"><a :href="v.route" class="flex items-center justify-between gap-2 py-1.5 text-[13px] hover:underline"><span class="truncate">{{ v.label }}</span><span class="shrink-0 text-[12px] text-nxg-text-3">{{ timeAgo(v.creation) }}</span></a></li></ul>
 				</div>
 			</NxgPanel>
@@ -146,7 +146,7 @@ function go(route: string) {
 				<div><label class="nxg-label" for="pref-tz">Time zone</label><select id="pref-tz" v-model="prefs.time_zone" class="nxg-input"><option value="">Site default</option><option v-for="z in prefOptions?.time_zones || []" :key="z">{{ z }}</option></select></div>
 				<div><label class="nxg-label" for="pref-ws">Default workspace</label><select id="pref-ws" v-model="prefs.default_workspace" class="nxg-input"><option value="">Not set</option><option v-for="w in d.workspaces || []" :key="w.name" :value="w.name">{{ w.label || w.name }}</option></select></div>
 				<div><label class="nxg-label" for="pref-app">Default app after sign-in</label><select id="pref-app" v-model="prefs.default_app" class="nxg-input"><option value="">Not set</option><option v-for="a in boot.data?.apps || []" :key="a.app" :value="a.app">{{ a.title }}</option></select></div>
-				<div class="rounded-nxg border border-nxg-border p-3 text-[12.5px] text-nxg-text-2">Password, two-factor and API keys are on your <a :href="`/desk/user/${encodeURIComponent(boot.data?.user.name || '')}`" class="nxg-link">user record</a>. Notification preferences are in the <RouterLink to="/notifications" class="nxg-link">Notification Center</RouterLink>.</div>
+				<div class="rounded-nxg border border-nxg-border p-3 text-[12.5px] text-nxg-text-2">Password, two-factor and API keys are on your <a :href="$href(`/desk/user/${encodeURIComponent(boot.data?.user.name || '')}`)" class="nxg-link">user record</a>. Notification preferences are in the <RouterLink to="/notifications" class="nxg-link">Notification Center</RouterLink>.</div>
 			</div>
 			<template #footer><button class="nxg-btn nxg-btn-secondary" @click="prefsOpen = false">Cancel</button><button class="nxg-btn nxg-btn-primary" @click="savePrefs">Save</button></template>
 		</NxgDrawer>

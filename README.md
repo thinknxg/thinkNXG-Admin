@@ -1,8 +1,9 @@
 # thinkNXG Admin — Command Center
 
 Unified enterprise command centers for **thinkNXG Core**, **thinkNXG ERP** and **thinkNXG HR** (V16):
-**Admin** at `/thinknxg`, **ERP** at `/thinknxg/erp` and **HR** at `/thinknxg/hr`, in one app with one
-design system. The classic Desk at `/desk` is left untouched.
+**Admin** at `/thinknxg/admin`, **ERP** at `/thinknxg/erp` and **HR** at `/thinknxg/hr`, in one app with
+one design system. ERP and HR modules, document lists, forms and reports all open inside their command
+center (16.5); the classic Desk at `/desk` is left untouched and stays available to administrators.
 
 Release 16.4: the Admin Command Center is joined by the **ERP** and **HR Command Centers**, a command
 center switcher, role-based default landing, ERP and HR approvals, a team view for managers, search

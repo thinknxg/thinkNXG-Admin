@@ -10,15 +10,18 @@ from datetime import timedelta
 import frappe
 from frappe.utils import cint, now_datetime
 
-from thinknxg_admin.api.utils import doctype_exists, is_admin, require_login, slug
+from thinknxg_admin.api.utils import doctype_exists, is_admin, require_login
 
 
 def report_route(name, report_type, ref_doctype):
-	if report_type in ("Script Report", "Query Report"):
-		return f"/desk/query-report/{name}"
-	if ref_doctype:
-		return f"/desk/{slug(ref_doctype)}/view/report/{name}"
-	return f"/desk/report/{name}"
+	"""Internal address: query, script and custom reports open in the thinkNXG
+	report runner; Report Builder reports open their DocType's list."""
+	from thinknxg_admin.api.routes import internal_route
+	from thinknxg_admin.api.routes import report_route as runner
+
+	if report_type in ("Script Report", "Query Report", "Custom Report") or not ref_doctype:
+		return runner(name)
+	return internal_route(ref_doctype)
 
 
 def _visible(reports, admin):

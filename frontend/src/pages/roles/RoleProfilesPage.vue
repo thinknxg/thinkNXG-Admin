@@ -74,7 +74,7 @@ async function save() {
 				<div><label class="nxg-label">Roles</label><NxgMultiSelect v-model="edit.roles" :options="roles" placeholder="Add role" /></div>
 			</div>
 			<template #footer>
-				<a v-if="!edit.create" :href="`/desk/role-profile/${encodeURIComponent(edit.name)}`" class="nxg-btn nxg-btn-ghost mr-auto">Open in Desk<Icon name="external-link" :size="13" /></a>
+				<a v-if="!edit.create" :href="$href(`/desk/role-profile/${encodeURIComponent(edit.name)}`)" class="nxg-btn nxg-btn-ghost mr-auto">Open full record<Icon name="external-link" :size="13" /></a>
 				<button class="nxg-btn nxg-btn-secondary" @click="edit.open = false">Cancel</button>
 				<button class="nxg-btn nxg-btn-primary" :disabled="!edit.name.trim() || edit.saving" @click="save">{{ edit.saving ? "Saving…" : "Save" }}</button>
 			</template>

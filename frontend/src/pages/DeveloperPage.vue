@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nav } from "@/lib/links";
 import { computed, reactive, ref, watch } from "vue";
 import { call, toast } from "frappe-ui";
 import PageHeader from "@/components/ui/PageHeader.vue";
@@ -132,14 +133,14 @@ watch(tab, (v) => {
 });
 const o = computed(() => ov.state.data || {});
 function openRoute(r: any) {
-	window.location.href = r.route;
+	nav(r.route);
 }
 </script>
 
 <template>
 	<div class="mx-auto w-full max-w-[1480px] px-4 pb-10 pt-6 sm:px-6">
 		<PageHeader title="Developer Tools" description="Inspect DocTypes and customisations, read error logs and manage background jobs. Read-only by design: no code runs from here.">
-			<a href="/desk/doctype" class="nxg-btn nxg-btn-ghost">DocType list<Icon name="external-link" :size="13" /></a>
+			<a :href="$href('/desk/doctype')" class="nxg-btn nxg-btn-ghost">DocType list<Icon name="external-link" :size="13" /></a>
 		</PageHeader>
 		<NxgTabs v-model="tab" class="mb-4" :tabs="[{ key: 'overview', label: 'Overview' }, { key: 'doctypes', label: 'DocType explorer', count: o.doctypes }, { key: 'custom', label: 'Customisations' }, { key: 'errors', label: 'Error logs', count: o.errors_unseen }, { key: 'jobs', label: 'Background jobs' }]" />
 		<div v-if="ov.state.error && tab === 'overview'" class="nxg-panel p-4 text-[13px] text-nxg-danger">{{ ov.state.error }}</div>
@@ -265,14 +266,14 @@ function openRoute(r: any) {
 					<h3 class="mb-2 nxg-micro">Customisations</h3>
 					<ul class="space-y-1 text-[12.5px]">
 						<li v-for="p in dtDetail.property_setters" :key="p.name"><span class="nxg-chip mr-1">Property</span>{{ p.field_name || "DocType" }} · {{ p.property }} = <code>{{ p.value }}</code></li>
-						<li v-for="c in dtDetail.client_scripts" :key="c.name"><span class="nxg-chip mr-1">Client script</span><a :href="`/desk/client-script/${encodeURIComponent(c.name)}`" class="hover:underline">{{ c.name }}</a> · {{ c.view }} · {{ c.enabled ? "enabled" : "disabled" }}</li>
-						<li v-for="s in dtDetail.server_scripts" :key="s.name"><span class="nxg-chip mr-1">Server script</span><a :href="`/desk/server-script/${encodeURIComponent(s.name)}`" class="hover:underline">{{ s.name }}</a> · {{ s.doctype_event }} · {{ s.disabled ? "disabled" : "enabled" }}</li>
+						<li v-for="c in dtDetail.client_scripts" :key="c.name"><span class="nxg-chip mr-1">Client script</span><a :href="$href(`/desk/client-script/${encodeURIComponent(c.name)}`)" class="hover:underline">{{ c.name }}</a> · {{ c.view }} · {{ c.enabled ? "enabled" : "disabled" }}</li>
+						<li v-for="s in dtDetail.server_scripts" :key="s.name"><span class="nxg-chip mr-1">Server script</span><a :href="$href(`/desk/server-script/${encodeURIComponent(s.name)}`)" class="hover:underline">{{ s.name }}</a> · {{ s.doctype_event }} · {{ s.disabled ? "disabled" : "enabled" }}</li>
 					</ul>
 				</section>
 			</div>
 			<template v-if="dtDetail && !dtDetail.error" #footer>
-				<a :href="`/desk/doctype/${encodeURIComponent(openDt || '')}`" class="nxg-btn nxg-btn-ghost mr-auto">Edit DocType<Icon name="external-link" :size="13" /></a>
-				<a :href="`/desk/customize-form?doc_type=${encodeURIComponent(openDt || '')}`" class="nxg-btn nxg-btn-secondary">Customize form</a>
+				<a :href="$href(`/desk/doctype/${encodeURIComponent(openDt || '')}`)" class="nxg-btn nxg-btn-ghost mr-auto">Edit DocType<Icon name="external-link" :size="13" /></a>
+				<a :href="$href(`/desk/customize-form?doc_type=${encodeURIComponent(openDt || '')}`)" class="nxg-btn nxg-btn-secondary">Customize form</a>
 				<a :href="dtDetail.route" class="nxg-btn nxg-btn-primary">Open records</a>
 			</template>
 		</NxgDrawer>
@@ -284,7 +285,7 @@ function openRoute(r: any) {
 				<div class="flex flex-wrap items-center gap-3 text-[12.5px] text-nxg-text-2"><span>{{ fmtDateTime(errDetail.creation) }}</span><span v-if="errDetail.reference_doctype">{{ errDetail.reference_doctype }} {{ errDetail.reference_name }}</span><span v-if="errDetail.trace_id" class="font-mono">trace {{ errDetail.trace_id }}</span><button class="nxg-btn nxg-btn-secondary ml-auto h-7" @click="copy(errDetail.error)">Copy traceback</button></div>
 				<pre class="nxg-scroll max-h-[70vh] overflow-auto rounded-nxg border border-nxg-border bg-nxg-surface-2 p-3 font-mono text-[12px] leading-5">{{ errDetail.error }}</pre>
 			</div>
-			<template v-if="errDetail?.name" #footer><a :href="`/desk/error-log/${encodeURIComponent(errDetail.name)}`" class="nxg-btn nxg-btn-ghost">Open in Desk<Icon name="external-link" :size="13" /></a></template>
+			<template v-if="errDetail?.name" #footer><a :href="$href(`/desk/error-log/${encodeURIComponent(errDetail.name)}`)" class="nxg-btn nxg-btn-ghost">Open full record<Icon name="external-link" :size="13" /></a></template>
 		</NxgDrawer>
 	</div>
 </template>

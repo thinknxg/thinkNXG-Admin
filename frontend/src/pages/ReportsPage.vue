@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nav } from "@/lib/links";
 import { computed, reactive, ref } from "vue";
 import PageHeader from "@/components/ui/PageHeader.vue";
 import NxgTabs from "@/components/ui/NxgTabs.vue";
@@ -29,7 +30,7 @@ const reports = computed(() => {
 const popular = computed(() => [...(d.value.reports || [])].filter((r: any) => r.exports_30d || r.my_opens).sort((a: any, b: any) => b.my_opens * 3 + b.exports_30d - (a.my_opens * 3 + a.exports_30d)).slice(0, 6));
 function open(r: any) {
 	pushRecent({ label: r.name, route: r.route, icon: "chart-column", external: true });
-	window.location.href = r.route;
+	nav(r.route);
 }
 function fav(r: any) {
 	toggleFavorite({ label: r.name, route: r.route, icon: "chart-column", external: true });
@@ -45,8 +46,8 @@ const typeIcon: Record<string, string> = { "Report Builder": "layout-grid", "Que
 <template>
 	<div class="mx-auto w-full max-w-[1480px] px-4 pb-10 pt-6 sm:px-6">
 		<PageHeader title="Reports & Analytics" description="Every report and dashboard you can open, what people use most, and reports emailed on a schedule.">
-			<a href="/desk/report/new" v-if="d.is_admin" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Report</a>
-			<a href="/desk/dashboard/new" v-if="d.is_admin" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Dashboard</a>
+			<a :href="$href('/desk/report/new')" v-if="d.is_admin" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Report</a>
+			<a :href="$href('/desk/dashboard/new')" v-if="d.is_admin" class="nxg-btn nxg-btn-secondary"><Icon name="plus" :size="14" />Dashboard</a>
 		</PageHeader>
 
 		<div v-if="cat.state.error" class="nxg-panel p-4 text-[13px] text-nxg-danger">{{ cat.state.error }} <button class="nxg-btn nxg-btn-secondary ml-2 h-7" @click="cat.load(true)">Retry</button></div>
@@ -98,7 +99,7 @@ const typeIcon: Record<string, string> = { "Report Builder": "layout-grid", "Que
 				<div class="border-b border-nxg-border px-4 py-3 text-[12.5px] text-nxg-text-2">{{ d.is_admin ? "All reports emailed on a schedule." : "Reports you have scheduled by email." }} Create one from a report's menu in Desk (“Setup Auto Email”).</div>
 				<NxgEmpty v-if="!d.scheduled?.length" text="No scheduled reports" icon="inbox" />
 				<DataTable v-else :columns="[{ key: 'report', label: 'Report' }, { key: 'frequency', label: 'When' }, { key: 'format', label: 'Format' }, { key: 'recipients', label: 'Recipients', align: 'right' }, { key: 'user', label: 'Owner' }, { key: 'enabled', label: 'On', align: 'right' }]" :rows="d.scheduled">
-					<template #cell-report="{ row }"><a :href="`/desk/auto-email-report/${encodeURIComponent(row.name)}`" class="font-medium hover:underline">{{ row.report }}</a></template>
+					<template #cell-report="{ row }"><a :href="$href(`/desk/auto-email-report/${encodeURIComponent(row.name)}`)" class="font-medium hover:underline">{{ row.report }}</a></template>
 					<template #cell-frequency="{ row }"><span class="text-nxg-text-2">{{ row.frequency }}<span v-if="row.frequency === 'Weekly' && row.day_of_week"> · {{ row.day_of_week }}</span></span></template>
 					<template #cell-recipients="{ row }"><span class="nxg-tnum">{{ row.recipients }}</span></template>
 					<template #cell-enabled="{ row }"><NxgSwitch :model-value="!!row.enabled" :label="`Enable ${row.report}`" @update:model-value="(v) => toggleSchedule(row, v)" /></template>

@@ -17,33 +17,118 @@ const days = (n: number) =>
 
 const nav = [
 	{ section: "Overview", items: [
-		{ key: "command-center", label: "Command Center", icon: "layout-dashboard", route: "/", status: "live" },
+		{ key: "command-center", label: "Command Center", icon: "layout-dashboard", route: "/admin", status: "live" },
 		{ key: "notifications", label: "Notifications", icon: "bell", route: "/notifications", status: "live" },
 		{ key: "my-workspace", label: "My Workspace", icon: "user-round", route: "/my-workspace", desk: "/desk", status: "live", description: "Your role-based landing page with shortcuts, tasks and approvals.", capabilities: ["Personal landing page per role", "Pinned shortcuts and favourites", "Assigned tasks and approvals"] },
 	] },
 	{ section: "Administration", items: [
-		{ key: "organization", label: "Organization", icon: "building-2", route: "/organization", desk: "/desk/company", status: "live", description: "Companies, branches, departments and the organisation hierarchy.", capabilities: ["Company, branch, department and designation management", "Visual organisation hierarchy"] },
-		{ key: "users", status: "live", label: "Users & Access", icon: "users", route: "/users", desk: "/desk/user", phase: 6, description: "Directory, invitations, activation, login history and API access.", capabilities: ["User directory with filters, bulk actions and export"], children: [
-			{ key: "users-list", label: "Users", route: "/users", desk: "/desk/user" },
-			{ key: "invitations", label: "Invitations", route: "/users/invitations", desk: "/desk/user-invitation" },
-			{ key: "user-permissions", label: "User Permissions", route: "/users/permissions", desk: "/desk/user-permission" },
+		{ key: "organization", label: "Organization", icon: "building-2", route: "/admin/organization", desk: "/desk/company", status: "live", description: "Companies, branches, departments and the organisation hierarchy.", capabilities: ["Company, branch, department and designation management", "Visual organisation hierarchy"] },
+		{ key: "users", status: "live", label: "Users & Access", icon: "users", route: "/admin/users", desk: "/desk/user", phase: 6, description: "Directory, invitations, activation, login history and API access.", capabilities: ["User directory with filters, bulk actions and export"], children: [
+			{ key: "users-list", label: "Users", route: "/admin/users", desk: "/desk/user" },
+			{ key: "invitations", label: "Invitations", route: "/admin/users/invitations", desk: "/desk/user-invitation" },
+			{ key: "user-permissions", label: "User Permissions", route: "/admin/users/permissions", desk: "/desk/user-permission" },
 		] },
-		{ key: "roles", status: "live", label: "Roles & Permissions", icon: "shield-check", route: "/roles", desk: "/desk/role", children: [{ key: "roles-list", label: "Roles", route: "/roles" }, { key: "role-profiles", label: "Role Profiles", route: "/roles/profiles" }, { key: "permission-matrix", label: "Permission Matrix", route: "/roles/matrix" }], phase: 6, description: "Roles, role profiles and the DocType permission matrix.", capabilities: ["Role x DocType permission matrix"] },
-		{ key: "workspaces", status: "live", label: "Workspaces", icon: "panels-top-left", route: "/workspaces", desk: "/desk/workspace", phase: 6, description: "Role workspaces, sidebars and desktop icons.", capabilities: [] },
-		{ key: "apps", status: "live", label: "Apps & Modules", icon: "blocks", route: "/apps", desk: "/desk/module-def", phase: 6, description: "Installed applications and modules.", capabilities: [] },
+		{ key: "roles", status: "live", label: "Roles & Permissions", icon: "shield-check", route: "/admin/roles", desk: "/desk/role", children: [{ key: "roles-list", label: "Roles", route: "/admin/roles" }, { key: "role-profiles", label: "Role Profiles", route: "/admin/roles/profiles" }, { key: "permission-matrix", label: "Permission Matrix", route: "/admin/roles/matrix" }], phase: 6, description: "Roles, role profiles and the DocType permission matrix.", capabilities: ["Role x DocType permission matrix"] },
+		{ key: "workspaces", status: "live", label: "Workspaces", icon: "panels-top-left", route: "/admin/workspaces", desk: "/desk/workspace", phase: 6, description: "Role workspaces, sidebars and desktop icons.", capabilities: [] },
+		{ key: "apps", status: "live", label: "Apps & Modules", icon: "blocks", route: "/admin/apps", desk: "/desk/module-def", phase: 6, description: "Installed applications and modules.", capabilities: [] },
 	] },
 	{ section: "Platform", items: [
-		{ key: "configuration", label: "Configuration", icon: "sliders-horizontal", route: "/configuration", desk: "/desk/system-settings", status: "live" },
-		{ key: "integrations", status: "live", label: "Integrations", icon: "plug", route: "/integrations", desk: "/desk/webhook" },
-		{ key: "automation", status: "live", label: "Automation", icon: "workflow", route: "/automation", desk: "/desk/workflow" },
+		{ key: "configuration", label: "Configuration", icon: "sliders-horizontal", route: "/admin/configuration", desk: "/desk/system-settings", status: "live" },
+		{ key: "integrations", status: "live", label: "Integrations", icon: "plug", route: "/admin/integrations", desk: "/desk/webhook" },
+		{ key: "automation", status: "live", label: "Automation", icon: "workflow", route: "/admin/automation", desk: "/desk/workflow" },
 		{ key: "reports", label: "Reports", icon: "chart-column", route: "/reports", desk: "/desk/report", status: "live" },
 	] },
 	{ section: "Governance", items: [
-		{ key: "audit", status: "live", label: "Audit & Compliance", icon: "scroll-text", route: "/audit", desk: "/desk/activity-log" },
-		{ key: "system-health", label: "System Health", icon: "activity", route: "/system-health", status: "live" },
-		{ key: "developer", status: "live", label: "Developer Tools", icon: "terminal", route: "/developer", desk: "/desk/doctype" },
+		{ key: "audit", status: "live", label: "Audit & Compliance", icon: "scroll-text", route: "/admin/audit", desk: "/desk/activity-log" },
+		{ key: "system-health", label: "System Health", icon: "activity", route: "/admin/system-health", status: "live" },
+		{ key: "developer", status: "live", label: "Developer Tools", icon: "terminal", route: "/admin/developer", desk: "/desk/doctype" },
 	] },
 ];
+
+
+const REG_MODULES: any = {
+	erp: [
+		{ key: "accounting", label: "Accounting", icon: "landmark", groups: [{ label: "Transactions", items: [["Sales Invoice"], ["Payment Entry"], ["Journal Entry"]] }, { label: "Masters", items: [["Account"], ["Cost Center"]] }], reports: ["General Ledger", "Accounts Receivable", "Profit and Loss Statement"] },
+		{ key: "selling", label: "Selling", icon: "shopping-cart", groups: [{ label: "Transactions", items: [["Quotation"], ["Sales Order"], ["Sales Invoice"]] }, { label: "Customers", items: [["Customer"], ["Lead"]] }], reports: ["Sales Analytics"] },
+		{ key: "stock", label: "Stock", icon: "package", groups: [{ label: "Items", items: [["Item"], ["Warehouse"]] }], reports: ["Stock Balance"] },
+	],
+	hr: [
+		{ key: "employees", label: "Employees", icon: "users", groups: [{ label: "People", items: [["Employee"]] }, { label: "Organization", items: [["Department"], ["Designation"]] }], reports: [] },
+		{ key: "leave", label: "Leave", icon: "plane", groups: [{ label: "Requests", items: [["Leave Application"]] }, { label: "Setup", items: [["Leave Type"]] }], reports: ["Employee Leave Balance"] },
+	],
+};
+const slugOf = (d: string) => d.toLowerCase().replace(/ /g, "-");
+const REGISTRY: any = { modules: {}, doctypes: {} };
+for (const [c, mods] of Object.entries(REG_MODULES) as any) {
+	REGISTRY.modules[c] = mods.map((m: any) => ({ ...m, groups: m.groups.map((g: any) => ({ label: g.label, items: g.items.map(([d]: any) => { REGISTRY.doctypes[d] ||= { center: c, module: m.key, slug: slugOf(d) }; return { doctype: d, slug: slugOf(d), create: true }; }) })) }));
+}
+const centerNav = (c: string, label: string) => [
+	{ section: "Overview", items: [{ key: c + "-home", label, icon: "layout-dashboard", route: "/" + c, status: "live" }, { key: c + "-approvals", label: "Approvals", icon: "stamp", route: `/${c}/approvals`, status: "live" }, { key: "my-workspace", label: "My Workspace", icon: "user-round", route: "/my-workspace", status: "live" }, { key: "notifications", label: "Notifications", icon: "bell", route: "/notifications", status: "live" }] },
+	{ section: "Modules", items: REGISTRY.modules[c].map((m: any) => ({ key: `${c}-${m.key}`, label: m.label, icon: m.icon, route: `/${c}/${m.key}`, status: "live", children: m.groups[0].items.map((d: any) => ({ key: `${c}-${m.key}-${d.slug}`, label: d.doctype, route: `/${c}/${m.key}/${d.slug}` })) })) },
+	{ section: "Insights", items: [{ key: c + "-reports", label: "Reports", icon: "chart-column", route: "/reports", status: "live" }] },
+];
+
+// Document engine sample data (Sales Invoice and Leave Application are detailed; others are generic).
+const SI_FIELDS = [
+	{ fieldname: "naming_series", label: "Series", fieldtype: "Select", options: "ACC-SINV-.YYYY.-", reqd: 1 },
+	{ fieldname: "customer", label: "Customer", fieldtype: "Link", options: "Customer", reqd: 1, bold: 1 },
+	{ fieldname: "customer_name", label: "Customer Name", fieldtype: "Data", fetch_from: "customer.customer_name", read_only: 1 },
+	{ fieldname: "is_return", label: "Is Return (Credit Note)", fieldtype: "Check" },
+	{ fieldname: "cb1", fieldtype: "Column Break" },
+	{ fieldname: "company", label: "Company", fieldtype: "Link", options: "Company", reqd: 1 },
+	{ fieldname: "posting_date", label: "Date", fieldtype: "Date", reqd: 1 },
+	{ fieldname: "due_date", label: "Payment Due Date", fieldtype: "Date", depends_on: "eval:!doc.is_return" },
+	{ fieldname: "sb_items", label: "Items", fieldtype: "Section Break" },
+	{ fieldname: "items", label: "Items", fieldtype: "Table", options: "Sales Invoice Item", reqd: 1 },
+	{ fieldname: "sb_totals", label: "Totals", fieldtype: "Section Break" },
+	{ fieldname: "total", label: "Total", fieldtype: "Currency", options: "currency", read_only: 1 },
+	{ fieldname: "cb2", fieldtype: "Column Break" },
+	{ fieldname: "grand_total", label: "Grand Total", fieldtype: "Currency", options: "currency", read_only: 1, bold: 1 },
+	{ fieldname: "tab_more", label: "More info", fieldtype: "Tab Break" },
+	{ fieldname: "sb_more", label: "Additional information", fieldtype: "Section Break" },
+	{ fieldname: "remarks", label: "Remarks", fieldtype: "Small Text" },
+	{ fieldname: "currency", label: "Currency", fieldtype: "Link", options: "Currency", hidden: 1 },
+	{ fieldname: "status", label: "Status", fieldtype: "Select", options: "Draft\nUnpaid\nPaid\nOverdue\nCancelled", read_only: 1, hidden: 1 },
+];
+const SI_ITEM_FIELDS = [
+	{ fieldname: "item_code", label: "Item", fieldtype: "Link", options: "Item", reqd: 1, in_list_view: 1 },
+	{ fieldname: "item_name", label: "Item Name", fieldtype: "Data", fetch_from: "item_code.item_name" },
+	{ fieldname: "qty", label: "Quantity", fieldtype: "Float", in_list_view: 1, reqd: 1 },
+	{ fieldname: "rate", label: "Rate", fieldtype: "Currency", in_list_view: 1 },
+	{ fieldname: "amount", label: "Amount", fieldtype: "Currency", read_only: 1, in_list_view: 1 },
+];
+const SI_ROWS = Array.from({ length: 23 }, (_, i) => ({ name: `ACC-SINV-2026-00${700 + i}`, customer: ["Al Noor Contracting", "Gulf Star Trading", "Muscat Hospitality", "Sohar Logistics"][i % 4], customer_name: ["Al Noor Contracting", "Gulf Star Trading", "Muscat Hospitality", "Sohar Logistics"][i % 4], posting_date: local(new Date(now - i * 86400000 * 1.7)).slice(0, 10), grand_total: 420 + ((i * 377) % 4800), currency: "OMR", status: ["Paid", "Unpaid", "Overdue", "Draft"][i % 4], docstatus: i % 4 === 3 ? 0 : 1, modified: ago(i * 140), owner: "rahul@example.com" }));
+const SI_DOC = (name: string) => {
+	const r = SI_ROWS.find((x) => x.name === name) || SI_ROWS[1];
+	return { doctype: "Sales Invoice", ...r, naming_series: "ACC-SINV-.YYYY.-", company: "Sample Trading LLC", due_date: r.posting_date, total: r.grand_total, creation: ago(3000), remarks: "Delivered to site 4.", is_return: 0,
+		items: [{ name: "row1", doctype: "Sales Invoice Item", idx: 1, item_code: "PIPE-PVC-110", item_name: "PVC pipe 110 mm", qty: 40, rate: 6.5, amount: 260 }, { name: "row2", doctype: "Sales Invoice Item", idx: 2, item_code: "VALVE-BALL-2IN", item_name: "Ball valve 2 in", qty: 8, rate: 20, amount: 160 }] };
+};
+const genericMeta = (dt: string) => ({ doctype: dt, slug: slugOf(dt), title_field: null, status_field: null, is_submittable: 0, issingle: 0, columns: [{ fieldname: "description", label: "Description", fieldtype: "Data" }], filters: [], sort_field: "modified", sort_order: "DESC", perms: { read: true, write: true, create: true, delete: true, export: true }, description: null });
+const docResponses: Record<string, (a: any) => any> = {
+	"thinknxg_admin.api.docs.get_list_meta": (a) => a.doctype === "sales-invoice" || a.doctype === "Sales Invoice"
+		? { doctype: "Sales Invoice", slug: "sales-invoice", title_field: "customer_name", status_field: "status", is_submittable: 1, issingle: 0, columns: [{ fieldname: "posting_date", label: "Date", fieldtype: "Date" }, { fieldname: "grand_total", label: "Grand Total", fieldtype: "Currency", options: "currency" }], filters: [{ fieldname: "status", label: "Status", fieldtype: "Select", options: "\nDraft\nUnpaid\nPaid\nOverdue" }, { fieldname: "customer", label: "Customer", fieldtype: "Link", options: "Customer" }, { fieldname: "posting_date", label: "Date", fieldtype: "Date" }], sort_field: "posting_date", sort_order: "DESC", perms: { read: true, write: true, create: true, submit: true, cancel: true, delete: true, export: true, print: true }, description: "Bill a customer for goods or services." }
+		: genericMeta(a.doctype.split("-").map((w: string) => w[0].toUpperCase() + w.slice(1)).join(" ")),
+	"thinknxg_admin.api.docs.get_list": (a) => {
+		if (a.doctype !== "Sales Invoice") return { rows: [], total: 0 };
+		let rows = SI_ROWS.slice();
+		for (const [f, , v] of a.filters || []) rows = rows.filter((r: any) => String(r[f]) === String(v));
+		if (a.search) rows = rows.filter((r) => (r.name + r.customer_name).toLowerCase().includes(String(a.search).toLowerCase()));
+		return { rows: rows.slice(a.start, a.start + a.page_length), total: rows.length };
+	},
+	"thinknxg_admin.api.docs.get_form_meta": (a) => ({ doctype: "Sales Invoice", slug: "sales-invoice", fields: SI_FIELDS, children: { "Sales Invoice Item": { fields: SI_ITEM_FIELDS, istable: 1 } }, title_field: "customer_name", is_submittable: 1, issingle: 0, istable: 0, naming_prompt: false, workflow: null, perms: { read: true, write: true, create: true, submit: true, cancel: true, amend: true, delete: true, print: true }, route: "/thinknxg/erp/accounting/sales-invoice" }),
+	"thinknxg_admin.api.docs.get_new_doc": () => ({ doctype: "Sales Invoice", naming_series: "ACC-SINV-.YYYY.-", company: "Sample Trading LLC", currency: "OMR", posting_date: local(new Date()).slice(0, 10), items: [], docstatus: 0 }),
+	"thinknxg_admin.api.docs.get_module_overview": (a) => ({ doctypes: (REGISTRY.modules[a.center]?.find((m: any) => m.key === a.module)?.groups || []).flatMap((g: any) => g.items).map((d: any, i: number) => ({ doctype: d.doctype, slug: d.slug, total: [128, 41, 9, 312, 57][i % 5], drafts: i % 2 ? undefined : [3, 1, 0][i % 3] })) }),
+	"frappe.desk.search.search_link": (a) => ["Al Noor Contracting", "Gulf Star Trading", "Muscat Hospitality", "Sohar Logistics", "PIPE-PVC-110", "VALVE-BALL-2IN"].filter((v) => v.toLowerCase().includes(String(a.txt || "").toLowerCase())).map((v) => ({ value: v, description: a.doctype })),
+	"frappe.client.get_value": (a) => ({ customer_name: a.filters, item_name: String(a.filters).replace(/-/g, " ").toLowerCase() }),
+	"frappe.model.workflow.get_transitions": () => [],
+	"frappe.desk.query_report.get_script": () => ({ script: 'frappe.query_reports["General Ledger"] = { filters: [ { fieldname: "company", label: __("Company"), fieldtype: "Link", options: "Company", default: frappe.defaults.get_user_default("Company"), reqd: 1 }, { fieldname: "from_date", label: __("From Date"), fieldtype: "Date", default: frappe.datetime.add_months(frappe.datetime.get_today(), -1), reqd: 1 }, { fieldname: "to_date", label: __("To Date"), fieldtype: "Date", default: frappe.datetime.get_today(), reqd: 1 }, { fieldname: "account", label: __("Account"), fieldtype: "MultiSelectList", options: "Account" }, { fieldname: "group_by", label: __("Group by"), fieldtype: "Select", options: ["", { label: "Group by Voucher", value: "Group by Voucher" }, "Group by Account"], default: "Group by Voucher" } ] }; erpnext.utils.add_dimensions("General Ledger", 15);' }),
+	"frappe.desk.query_report.run": () => ({ columns: [{ fieldname: "posting_date", label: "Posting Date", fieldtype: "Date" }, { fieldname: "account", label: "Account", fieldtype: "Link", options: "Account" }, { fieldname: "debit", label: "Debit (OMR)", fieldtype: "Float" }, { fieldname: "credit", label: "Credit (OMR)", fieldtype: "Float" }, { fieldname: "voucher_no", label: "Voucher", fieldtype: "Dynamic Link", options: "voucher_type" }],
+		result: SI_ROWS.slice(0, 12).map((r, i) => ({ posting_date: r.posting_date, account: i % 2 ? "Sales - STL" : "Debtors - STL", debit: i % 2 ? 0 : r.grand_total, credit: i % 2 ? r.grand_total : 0, voucher_type: "Sales Invoice", voucher_no: r.name })) }),
+};
+const rawResponses: Record<string, (a: any) => any> = {
+	"frappe.desk.form.load.getdoc": (a) => ({ docs: [SI_DOC(a.name)], docinfo: { attachments: [{ name: "f1", file_name: "delivery-note-signed.pdf", file_url: "#" }], comments: [{ content: "Customer asked for the signed delivery note.", comment_by: "Fatma Al Hinai", creation: ago(300) }], versions: [{ owner: "Rahul Menon", creation: ago(900), data: JSON.stringify({ changed: [["due_date", "", ""]] }) }] } }),
+	"frappe.desk.form.save.savedocs": (a) => { const d = JSON.parse(a.doc); return { docs: [{ ...d, __islocal: undefined, name: d.__islocal ? "ACC-SINV-2026-00801" : d.name, docstatus: a.action === "Submit" ? 1 : 0, modified: ago(0) }] }; },
+};
 
 const responses: Record<string, (args: any) => any> = {
 	"thinknxg_admin.api.boot.get_boot": () => ({
@@ -51,23 +136,16 @@ const responses: Record<string, (args: any) => any> = {
 		brand: { name: "thinkNXG", product: "thinkNXG ERP", logo: "/assets/frappe/images/thinkNXG-favicon.png", docs_url: "https://docs.thinknxg.com/thinknxgerp", support_url: "https://thinknxg.com/thinkdesk", whats_new_url: "https://docs.thinknxg.com/thinknxgerp" },
 		version: "16.0.0",
 		centers: [
-			{ key: "admin", label: "Admin Command Center", short: "Admin", icon: "shield-check", description: "Users, access, platform and governance", route: "/", title: "Welcome to thinkNXG Command Center", subtitle: "Your premium administration command center.", docs_url: "https://docs.thinknxg.com/thinknxgframework", filters: ["company"], access: "full", navigation: nav,
+			{ key: "admin", label: "Admin Command Center", short: "Admin", icon: "shield-check", description: "Users, access, platform and governance", route: "/admin", title: "Welcome to thinkNXG Command Center", subtitle: "Your premium administration command center.", docs_url: "https://docs.thinknxg.com/thinknxgframework", filters: ["company"], access: "full", navigation: nav,
 				quick_create: [{ doctype: "User", icon: "user", route: "/desk/user/new" }, { doctype: "Role", icon: "role", route: "/desk/role/new" }, { doctype: "Company", icon: "building-2", route: "/desk/company/new" }, { doctype: "Workspace", icon: "panels-top-left", route: "/desk/workspace/new" }] },
 			{ key: "erp", label: "ERP Command Center", short: "ERP", icon: "briefcase", description: "Finance, sales, purchasing, stock and operations", route: "/erp", title: "Welcome to thinkNXG ERP Command Center", subtitle: "Your intelligent business operations command center.", docs_url: "https://docs.thinknxg.com/thinknxgerp", filters: ["company", "branch", "fiscal_year", "date_range"], access: "full",
-				navigation: [
-					{ section: "Overview", items: [{ key: "erp-home", label: "ERP Command Center", icon: "layout-dashboard", route: "/erp", status: "live" }, nav[0].items[2], nav[0].items[1]] },
-					{ section: "Operations", items: [["accounting", "Accounting", "landmark"], ["selling", "Selling", "shopping-cart"], ["buying", "Buying", "shopping-bag"], ["stock", "Stock", "package"], ["manufacturing", "Manufacturing", "factory"], ["crm", "CRM", "handshake"], ["projects", "Projects", "folder-kanban"], ["assets", "Assets", "box"], ["quality", "Quality", "badge-check"]].map(([k, l, i]) => ({ key: "erp-" + k, label: l, icon: i, route: "/desk/" + k, href: "/desk/" + k, status: "desk" })) },
-					{ section: "Insights", items: [{ key: "reports", label: "Reports", icon: "chart-column", route: "/reports", status: "live" }, { key: "erp-transactions", label: "Transactions", icon: "arrow-left-right", route: "/desk/sales-invoice", href: "/desk/sales-invoice", status: "desk" }, { key: "erp-approvals", label: "Approvals", icon: "stamp", route: "/erp/approvals", status: "live" }] },
-				],
-				quick_create: [["Sales Invoice", "receipt"], ["Sales Order", "shopping-cart"], ["Purchase Order", "shopping-bag"], ["Payment Entry", "banknote"], ["Journal Entry", "book-open"], ["Stock Entry", "package"], ["Customer", "user-round"], ["Lead", "user-plus"]].map(([d, i]) => ({ doctype: d, icon: i, route: "/desk/" + d.toLowerCase().replace(/ /g, "-") + "/new", center: "erp" })) },
+				navigation: centerNav("erp", "ERP Command Center"),
+				quick_create: [["Sales Invoice", "receipt"], ["Sales Order", "shopping-cart"], ["Purchase Order", "shopping-bag"], ["Payment Entry", "banknote"], ["Journal Entry", "book-open"], ["Stock Entry", "package"], ["Customer", "user-round"], ["Lead", "user-plus"]].map(([d, i]) => ({ doctype: d, icon: i, route: "/thinknxg/erp/accounting/" + d.toLowerCase().replace(/ /g, "-") + "/new", center: "erp" })) },
 			{ key: "hr", label: "HR Command Center", short: "HR", icon: "users-round", description: "Workforce, attendance, leave and people operations", route: "/hr", title: "Welcome to thinkNXG HR Command Center", subtitle: "Your intelligent workforce management and people operations command center.", docs_url: "https://docs.thinknxg.com/thinknxghr", filters: ["company", "department", "branch", "date_range"], access: MANAGER ? "team" : "limited",
-				navigation: [
-					{ section: "Overview", items: [{ key: "hr-home", label: "HR Command Center", icon: "layout-dashboard", route: "/hr", status: "live" }, nav[0].items[2], nav[0].items[1]] },
-					{ section: "People", items: [["employee", "Employees", "users"], ["organizational-chart", "Org Structure", "network"], ["recruitment", "Recruitment", "user-search"], ["attendance", "Attendance", "calendar-check"], ["leaves", "Leave", "plane"], ["shift-assignment", "Shifts", "clock"], ["tenure", "Lifecycle", "route"], ["performance", "Performance", "trophy"], ["training-event", "Training", "graduation-cap"]].map(([k, l, i]) => ({ key: "hr-" + k, label: l, icon: i, route: "/desk/" + k, href: "/desk/" + k, status: "desk" })) },
-					{ section: "Insights", items: [{ key: "hr-reports", label: "HR Reports", icon: "chart-column", route: "/reports", status: "live" }, { key: "hr-approvals", label: "HR Approvals", icon: "stamp", route: "/hr/approvals", status: "live" }] },
-				],
+				navigation: centerNav("hr", "HR Command Center"),
 				quick_create: [["Employee", "user-plus"], ["Attendance", "calendar-check"], ["Leave Application", "plane"], ["Job Opening", "briefcase"], ["Expense Claim", "receipt"]].map(([d, i]) => ({ doctype: d, icon: i, route: "/desk/" + d.toLowerCase().replace(/ /g, "-") + "/new", center: "hr" })) },
 		],
+		registry: REGISTRY,
 		default_center: "admin",
 		preferences: { default_center: null, last_center: null, state: {} },
 		personal_navigation: [{ section: "Overview", items: [nav[0].items[2], nav[0].items[1]] }],
@@ -91,7 +169,7 @@ const responses: Record<string, (args: any) => any> = {
 	"thinknxg_admin.api.centers.save_preferences": () => ({ default_center: null, last_center: null, state: {} }),
 	"thinknxg_admin.api.erp.get_kpis": (a) => ({
 		_context: { company: a.company || "Sample Trading LLC", currency: "OMR", start: local(new Date(now - (Number(a.days || 30) - 1) * 86400000)).slice(0, 10), end: local(new Date()).slice(0, 10) },
-		total_revenue: { value: 184250.4, delta: 6.2, currency: "OMR", route: "/desk/query-report/Profit and Loss Statement" },
+		total_revenue: { value: 184250.4, delta: 6.2, currency: "OMR", route: "/thinknxg/erp/reports/Profit%20and%20Loss%20Statement" },
 		gross_profit: { value: 52310.1, delta: -2.4, secondary: 28.4, currency: "OMR" },
 		receivables: { value: 96120.75, currency: "OMR" },
 		payables: { value: 41870.2, currency: "OMR" },
@@ -346,9 +424,9 @@ window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
 		} catch {
 			/* ignore */
 		}
-		const handler = responses[m[1]];
+		const handler = responses[m[1]] || docResponses[m[1]];
 		await new Promise((r) => setTimeout(r, 250 + Math.random() * 350));
-		const body = handler ? { message: handler(args) } : { message: null };
+		const body = rawResponses[m[1]] ? rawResponses[m[1]](args) : handler ? { message: handler(args) } : { message: null };
 		return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
 	}
 	return realFetch(input, init);

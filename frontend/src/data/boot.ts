@@ -38,12 +38,19 @@ export interface Center {
 	quick_create: QuickCreate[];
 }
 export interface CenterState { company?: string; branch?: string; department?: string; fiscal_year?: string; days?: number; last_route?: string }
+export interface RegistryDoctype { doctype: string; slug: string; create: boolean }
+export interface RegistryModule { key: string; label: string; icon: string; groups: { label: string; items: RegistryDoctype[] }[]; reports: string[] }
+export interface Registry {
+	modules: Partial<Record<CenterKey, RegistryModule[]>>;
+	doctypes: Record<string, { center: CenterKey; module: string; slug: string }>;
+}
 export interface Preferences { default_center: CenterKey | null; last_center: CenterKey | null; state: Partial<Record<CenterKey, CenterState>> }
 export interface Boot {
 	user: { name: string; full_name: string; email?: string; image?: string; theme?: string; roles: string[]; is_admin: boolean };
 	brand: { name: string; product: string; logo: string; docs_url: string; support_url: string; whats_new_url: string };
 	version: string;
 	centers: Center[];
+	registry: Registry;
 	default_center: CenterKey | null;
 	preferences: Preferences;
 	personal_navigation: NavSection[];
@@ -98,6 +105,20 @@ export function allNavItems(): NavItem[] {
 				out.push(x);
 			}
 	return out;
+}
+
+export function getModule(center: string, key: string): RegistryModule | undefined {
+	return boot.data?.registry?.modules?.[center as CenterKey]?.find((m) => m.key === key);
+}
+
+/** DocType name for a URL slug, from the user's registry (or a best guess). */
+export function doctypeFromSlug(slug: string): string {
+	const hit = Object.entries(boot.data?.registry?.doctypes || {}).find(([, v]) => v.slug === slug);
+	if (hit) return hit[0];
+	return decodeURIComponent(slug)
+		.split("-")
+		.map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+		.join(" ");
 }
 
 export function getCenter(key: string | null | undefined): Center | undefined {
