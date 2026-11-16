@@ -19,6 +19,7 @@ from frappe.utils import add_days, date_diff, flt, getdate, today
 
 from thinknxg_admin.api.cache import cached_panel
 from thinknxg_admin.api.centers import permitted_companies, require_center, validate_company
+from thinknxg_admin.api.figures import Missing, Restricted, _between, _check, _count, _figure, _one, _part, _q, _quiet
 from thinknxg_admin.api.utils import delta, desk_route, doctype_exists, has_field, slug
 
 SECTIONS = ("sales", "finance", "purchase", "inventory", "manufacturing", "projects", "crm")
@@ -26,21 +27,6 @@ OPEN_SO = ["To Deliver and Bill", "To Bill", "To Deliver"]
 OPEN_PO = ["To Receive and Bill", "To Bill", "To Receive"]
 DONE_WO = ["Completed", "Stopped", "Closed", "Cancelled"]
 DONE_TASK = ["Completed", "Cancelled", "Template"]
-
-
-def _quiet(exc):
-	"""Drop the message a refused framework permission check queued, so a
-	restricted figure does not pop up an error dialog in the browser."""
-	if isinstance(exc, frappe.PermissionError):
-		frappe.clear_last_message()
-
-
-class Restricted(Exception):
-	"""The user cannot read a source DocType: no number is sent."""
-
-
-class Missing(Exception):
-	"""The source DocType is not installed on this site."""
 
 
 # Context ------------------------------------------------------------------------
@@ -99,35 +85,6 @@ def _f(ctx, doctype: str, extra: dict | None = None, company=True) -> dict:
 	return f
 
 
-def _check(*doctypes):
-	for dt in doctypes:
-		if not doctype_exists(dt):
-			raise Missing
-		if not frappe.has_permission(dt, "read"):
-			raise Restricted
-	return True
-
-
-def _q(doctype, fields, filters, group_by=None, limit=None, order_by=None):
-	"""Aggregate query with the user's permissions applied by the framework."""
-	return frappe.qb.get_query(
-		doctype, fields=fields, filters=filters, group_by=group_by, limit=limit, order_by=order_by, ignore_permissions=False
-	).run(as_dict=True)
-
-
-def _one(doctype, fields, filters) -> frappe._dict:
-	rows = _q(doctype, fields, filters)
-	return frappe._dict(rows[0] if rows else {})
-
-
-def _count(doctype, filters) -> int:
-	return int(_one(doctype, [{"COUNT": "*", "as": "n"}], filters).n or 0)
-
-
-def _between(a, b):
-	return ["between", [a, b]]
-
-
 def _accounts(ctx, **filters) -> list[str]:
 	"""Account names for the company by type. Names only (chart metadata), no balances."""
 	return frappe.get_all("Account", filters={"company": ctx.company, "is_group": 0, **filters}, pluck="name")
@@ -138,18 +95,6 @@ def _list_route(doctype, **params):
 
 	q = urlencode({k: v for k, v in params.items() if v is not None})
 	return f"/desk/{slug(doctype)}" + (f"?{q}" if q else "")
-
-
-def _figure(fn, ctx):
-	"""Run one figure; map missing DocTypes and missing permissions to honest states."""
-	try:
-		out = fn(ctx)
-	except Missing:
-		return {"value": None}
-	except (Restricted, frappe.PermissionError) as exc:
-		_quiet(exc)
-		return {"restricted": True}
-	return out if out is not None else {"value": None}
 
 
 # KPIs -------------------------------------------------------------------------------
@@ -281,16 +226,6 @@ def _top(rows, key, value, n=6):
 	rows = [r for r in rows if r.get(key)]
 	rows.sort(key=lambda r: flt(r.get(value)), reverse=True)
 	return [{"label": r[key], "value": flt(r[value])} for r in rows[:n]]
-
-
-def _part(fn):
-	try:
-		return fn()
-	except Missing:
-		return {"available": False}
-	except (Restricted, frappe.PermissionError) as exc:
-		_quiet(exc)
-		return {"restricted": True}
 
 
 def section_sales(ctx):
@@ -529,18 +464,24 @@ def get_pending(company=None):
 
 # Approvals ---------------------------------------------------------------------------
 
+def app_doctypes(app: str) -> set[str]:
+	"""Non-child DocTypes that belong to one installed app (cached per request)."""
+	cache = frappe.local.__dict__.setdefault("_nxg_app_doctypes", {})
+	if app not in cache:
+		modules = frappe.get_all("Module Def", filters={"app_name": app}, pluck="name")
+		cache[app] = set(frappe.get_all("DocType", filters={"module": ["in", modules or [""]], "istable": 0}, pluck="name"))
+	return cache[app]
+
+
 def erp_doctypes() -> set[str]:
-	if not hasattr(frappe.local, "_nxg_erp_doctypes"):
-		modules = frappe.get_all("Module Def", filters={"app_name": "erpnext"}, pluck="name")
-		frappe.local._nxg_erp_doctypes = set(frappe.get_all("DocType", filters={"module": ["in", modules or [""]], "istable": 0}, pluck="name"))
-	return frappe.local._nxg_erp_doctypes
+	return app_doctypes("erpnext")
 
 
-def _open_actions(limit=200):
+def _open_actions(limit=200, doctypes=None):
 	if not doctype_exists("Workflow Action"):
 		return []
 	roles = tuple(frappe.get_roles()) or ("",)
-	doctypes = tuple(erp_doctypes()) or ("",)
+	doctypes = tuple(doctypes if doctypes is not None else erp_doctypes()) or ("",)
 	return frappe.db.sql(
 		"""select wa.name, wa.reference_doctype, wa.reference_name, wa.workflow_state, wa.creation
 		from `tabWorkflow Action` wa
@@ -553,12 +494,12 @@ def _open_actions(limit=200):
 	)
 
 
-def _approval_rows(company=None, limit=50, with_actions=True):
+def _approval_rows(company=None, limit=50, with_actions=True, doctypes=None, check_company=True):
 	from frappe.model.workflow import WorkflowStateError, get_transitions
 
-	allowed_companies = set(permitted_companies())
+	allowed_companies = set(permitted_companies()) if check_company else set()
 	out, seen = [], set()
-	for a in _open_actions():
+	for a in _open_actions(doctypes=doctypes):
 		key = (a.reference_doctype, a.reference_name)
 		if key in seen:
 			continue
@@ -571,7 +512,7 @@ def _approval_rows(company=None, limit=50, with_actions=True):
 			_quiet(exc)
 			continue
 		doc_company = doc.get("company")
-		if doc_company and (doc_company not in allowed_companies or (company and doc_company != company)):
+		if doc_company and ((check_company and doc_company not in allowed_companies) or (company and doc_company != company)):
 			continue
 		row = {
 			"doctype": doc.doctype, "name": doc.name, "title": doc.get_title() or doc.name,

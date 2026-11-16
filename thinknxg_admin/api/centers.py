@@ -100,12 +100,7 @@ HR_NAVIGATION = [
 	]},
 	{"section": "Insights", "items": [
 		dict(REPORTS, key="hr-reports", label="HR Reports", hr_only=True),
-		{
-			"key": "hr-approvals", "label": "HR Approvals", "icon": "stamp", "route": "/hr/approvals", "status": "planned", "phase": "D",
-			"desk": "/desk/leave-application?status=Open",
-			"description": "Leave, expense, attendance and shift requests waiting for you, with Approve and Reject.",
-			"capabilities": ["Requests where you are the named approver", "Approve or reject with confirmation", "Workflow rules still decide who may act"],
-		},
+		{"key": "hr-approvals", "label": "HR Approvals", "icon": "stamp", "route": "/hr/approvals", "status": "live"},
 	]},
 ]
 

@@ -109,3 +109,24 @@ Architecture & ERP/HR Blueprint" (approved 16 Nov 2026).
   records the action in the document's history. The list shows only documents the user can read and
   only transitions `get_transitions` offers them.
 - Panels are cached for the settings TTL per user and filter set; an approval clears the cache.
+
+## Unified command centers — Phase D/E (HR figures, approvals, My Team)
+
+- **HR roles ("full"/"limited")**: every figure goes through the permission-aware query builder
+  (shared helpers in `api/figures.py`), so Employee/Company/Department User Permissions narrow every
+  count. Department filters use each DocType's own `department` field; branch exists only on
+  Employee, so other records are matched through the employees of that branch.
+- **Managers ("team")**: rows are limited on the server to the manager's active direct reports
+  (`reports_to`) and to `TEAM_DOCTYPES` (Employee, Attendance, Leave Application, Employee Checkin,
+  Expense Claim, Shift Request). Because thinkNXG HR normally hides other people's Employee records
+  from a non-HR user, team queries run without the framework's record permissions but always with
+  the direct-report filter. Payroll, recruitment, performance and lifecycle are never sent to them.
+- **Payroll** needs `can_view_payroll()` *and* read access to Payroll Entry / Salary Slip. Only totals
+  (latest run, net pay per pay period, slips by status) are sent — never an individual's pay.
+- **Approvals without a workflow** (Leave Application, Expense Claim, Shift Request): only the named
+  approver (`leave_approver`, `expense_approver`, `approver`) may act; the outcome field is set and the
+  document submitted under the user's own submit permission, so thinkNXG HR's validation runs exactly
+  as in the Desk (leave balances, expense accounting, shift assignment creation). With an active
+  workflow, the core workflow engine decides, as for ERP. Attendance and Compensatory Leave Requests
+  have no approver field, so they appear as HR to-dos linking to the Desk.
+- The ERP and HR approval screens are one shared page (`ApprovalsPage.vue`).

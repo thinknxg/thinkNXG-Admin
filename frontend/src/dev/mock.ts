@@ -3,6 +3,8 @@
 // "Preview build with sample data" banner whenever this module is active.
 
 const now = Date.now();
+// ?as=manager previews the HR "My team" view of a manager without an HR role.
+const MANAGER = typeof location !== "undefined" && location.search.includes("as=manager");
 const local = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().replace("T", " ").slice(0, 19);
 const ago = (mins: number) => local(new Date(now - mins * 60000));
 const days = (n: number) =>
@@ -58,11 +60,11 @@ const responses: Record<string, (args: any) => any> = {
 					{ section: "Insights", items: [{ key: "reports", label: "Reports", icon: "chart-column", route: "/reports", status: "live" }, { key: "erp-transactions", label: "Transactions", icon: "arrow-left-right", route: "/desk/sales-invoice", href: "/desk/sales-invoice", status: "desk" }, { key: "erp-approvals", label: "Approvals", icon: "stamp", route: "/erp/approvals", status: "live" }] },
 				],
 				quick_create: [["Sales Invoice", "receipt"], ["Sales Order", "shopping-cart"], ["Purchase Order", "shopping-bag"], ["Payment Entry", "banknote"], ["Journal Entry", "book-open"], ["Stock Entry", "package"], ["Customer", "user-round"], ["Lead", "user-plus"]].map(([d, i]) => ({ doctype: d, icon: i, route: "/desk/" + d.toLowerCase().replace(/ /g, "-") + "/new", center: "erp" })) },
-			{ key: "hr", label: "HR Command Center", short: "HR", icon: "users-round", description: "Workforce, attendance, leave and people operations", route: "/hr", title: "Welcome to thinkNXG HR Command Center", subtitle: "Your intelligent workforce management and people operations command center.", docs_url: "https://docs.thinknxg.com/thinknxghr", filters: ["company", "department", "branch", "date_range"], access: "limited",
+			{ key: "hr", label: "HR Command Center", short: "HR", icon: "users-round", description: "Workforce, attendance, leave and people operations", route: "/hr", title: "Welcome to thinkNXG HR Command Center", subtitle: "Your intelligent workforce management and people operations command center.", docs_url: "https://docs.thinknxg.com/thinknxghr", filters: ["company", "department", "branch", "date_range"], access: MANAGER ? "team" : "limited",
 				navigation: [
 					{ section: "Overview", items: [{ key: "hr-home", label: "HR Command Center", icon: "layout-dashboard", route: "/hr", status: "live" }, nav[0].items[2], nav[0].items[1]] },
 					{ section: "People", items: [["employee", "Employees", "users"], ["organizational-chart", "Org Structure", "network"], ["recruitment", "Recruitment", "user-search"], ["attendance", "Attendance", "calendar-check"], ["leaves", "Leave", "plane"], ["shift-assignment", "Shifts", "clock"], ["tenure", "Lifecycle", "route"], ["performance", "Performance", "trophy"], ["training-event", "Training", "graduation-cap"]].map(([k, l, i]) => ({ key: "hr-" + k, label: l, icon: i, route: "/desk/" + k, href: "/desk/" + k, status: "desk" })) },
-					{ section: "Insights", items: [{ key: "hr-reports", label: "HR Reports", icon: "chart-column", route: "/reports", status: "live" }, { key: "hr-approvals", label: "HR Approvals", icon: "stamp", route: "/hr/approvals", status: "planned", phase: "D", desk: "/desk/leave-application", description: "Leave, expense, attendance and shift requests waiting for you.", capabilities: ["Requests where you are the named approver"] }] },
+					{ section: "Insights", items: [{ key: "hr-reports", label: "HR Reports", icon: "chart-column", route: "/reports", status: "live" }, { key: "hr-approvals", label: "HR Approvals", icon: "stamp", route: "/hr/approvals", status: "live" }] },
 				],
 				quick_create: [["Employee", "user-plus"], ["Attendance", "calendar-check"], ["Leave Application", "plane"], ["Job Opening", "briefcase"], ["Expense Claim", "receipt"]].map(([d, i]) => ({ doctype: d, icon: i, route: "/desk/" + d.toLowerCase().replace(/ /g, "-") + "/new", center: "hr" })) },
 		],
@@ -121,6 +123,36 @@ const responses: Record<string, (args: any) => any> = {
 		{ doctype: "Purchase Order", name: "PUR-ORD-2026-00191", title: "Gulf Steel Supplies", state: "Pending Finance", creation: ago(95), company: "Sample Trading LLC", amount: 12480, currency: "OMR", owner: "Rahul Menon", route: "#", actions: ["Approve", "Reject"] },
 		{ doctype: "Sales Order", name: "SAL-ORD-2026-00733", title: "Al Noor Contracting", state: "Pending Manager", creation: ago(320), company: "Sample Trading LLC", amount: 8760.5, currency: "OMR", owner: "Noor Al Balushi", route: "#", actions: ["Approve", "Send Back", "Reject"] },
 		{ doctype: "Material Request", name: "MAT-MR-2026-00088", title: "Site 4 consumables", state: "Pending Approval", creation: ago(1440), company: "Sample Trading LLC", amount: null, currency: null, owner: "Fatma Al Hinai", route: "#", actions: ["Approve", "Reject"] },
+	] }),
+	"thinknxg_admin.api.hr.get_kpis": (a) => MANAGER ? ({
+		_context: { level: "team", company: null, start: local(new Date(now - 29 * 86400000)).slice(0, 10), end: local(new Date()).slice(0, 10), team_size: 6 },
+		total_employees: { hidden: true }, new_joiners: { hidden: true }, open_positions: { hidden: true },
+		active_employees: { value: 6 }, on_leave_today: { value: 1 }, present_today: { value: 4 }, absent_today: { value: 0 }, attendance_rate: { value: 97.5, delta: 1.2 }, pending_leave: { value: 2 }, pending_approvals: { value: 2 },
+	}) : ({
+		_context: { level: "limited", company: a.company || "Sample Trading LLC", start: local(new Date(now - (Number(a.days || 30) - 1) * 86400000)).slice(0, 10), end: local(new Date()).slice(0, 10), team_size: null },
+		total_employees: { value: 214 }, active_employees: { value: 198 }, new_joiners: { value: 7, delta: 40 },
+		on_leave_today: { value: 9 }, present_today: { value: 171 }, absent_today: { value: 6 },
+		attendance_rate: { value: 96.2, delta: 0.8 }, pending_leave: { value: 14 }, open_positions: { value: 11, secondary: 6 }, pending_approvals: { value: 4 },
+	}),
+	"thinknxg_admin.api.hr.get_pending": () => ({ items: [
+		{ key: "approvals", label: "Requests waiting for your approval", icon: "stamp", value: 4, route: "/thinknxg/hr/approvals" },
+		{ key: "attendance-request", label: "Attendance requests to review", icon: "calendar-check", value: 3, route: "/desk/attendance-request" },
+		{ key: "onboarding", label: "Onboarding in progress", icon: "log-in", value: 2, route: "/desk/employee-onboarding" },
+	] }),
+	"thinknxg_admin.api.hr.get_section": (a) => {
+		const n = Number(a.days || 30);
+		if (a.section === "team") return { members: [["Ahmed Al Rawahi", "Site Engineer", "On Leave"], ["Priya Nair", "Quantity Surveyor", "Present"], ["Salim Al Harthy", "Foreman", "Present"], ["Maryam Al Lawati", "Planner", "Work From Home"], ["Joseph Thomas", "Technician", "Present"], ["Hamed Al Siyabi", "Technician", "Not marked"]].map(([n, d, t], i) => ({ name: "E" + i, employee_name: n, designation: d, department: "Projects", today: t })) };
+		switch (a.section) {
+			case "employee": return { joiners: 7, leavers: 2, by_department: [{ label: "Operations", value: 74 }, { label: "Sales", value: 41 }, { label: "Finance", value: 23 }, { label: "Warehouse", value: 38 }, { label: "HR", value: 9 }], by_designation: [{ label: "Technician", value: 52 }, { label: "Sales Executive", value: 29 }, { label: "Driver", value: 21 }, { label: "Accountant", value: 12 }] };
+			case "attendance": return { trend: Array.from({ length: n }, (_, i) => { const d = new Date(now - (n - 1 - i) * 86400000); const off = [5, 6].includes(d.getDay()); return { date: local(d).slice(0, 10), present: off ? 0 : 168 + (i % 6), absent: off ? 0 : 3 + (i % 4) }; }), late_entries: 46, early_exits: 12, half_days: 5, checkins_today: 342 };
+			case "leave": return { open_requests: 14, by_type: [{ label: "Annual Leave", value: 96 }, { label: "Sick Leave", value: 31 }, { label: "Emergency Leave", value: 7 }], upcoming: [{ name: "1", employee_name: "Ahmed Al Rawahi", leave_type: "Annual Leave", from_date: local(new Date(now - 86400000)).slice(0, 10), to_date: local(new Date(now + 5 * 86400000)).slice(0, 10), route: "#" }, { name: "2", employee_name: "Priya Nair", leave_type: "Sick Leave", from_date: local(new Date()).slice(0, 10), to_date: local(new Date(now + 86400000)).slice(0, 10), route: "#" }] };
+			default: return { restricted: true };
+		}
+	},
+	"thinknxg_admin.api.hr.get_approvals": () => ({ items: [
+		{ doctype: "Leave Application", name: "HR-LAP-2026-00218", title: "Ahmed Al Rawahi", detail: "Annual Leave · 2026-11-23 to 2026-11-27 · 5 days", creation: ago(200), company: "Sample Trading LLC", route: "#", actions: ["Approve", "Reject"] },
+		{ doctype: "Expense Claim", name: "HR-EXP-2026-00071", title: "Priya Nair", detail: "Expense claim · 2026-11-12", amount: 46.5, currency: "OMR", creation: ago(900), company: "Sample Trading LLC", route: "#", actions: ["Approve", "Reject"] },
+		{ doctype: "Shift Request", name: "HR-SHR-2026-00009", title: "Salim Al Harthy", detail: "Night Shift · from 2026-11-20", creation: ago(1600), company: "Sample Trading LLC", route: "#", actions: ["Approve", "Reject"] },
 	] }),
 	"thinknxg_admin.api.dashboard.get_kpis": (a) => ({
 		total_users: { value: 148, secondary: 6, delta: 50 },

@@ -61,7 +61,7 @@ const ready = computed(() => boot.ready && boot.data);
 			<div v-if="preview" class="bg-nxg-warning px-4 py-1 text-center text-[12px] font-medium text-white">Preview build with sample data - not connected to a site</div>
 			<TopBar />
 			<main id="main" class="nxg-scroll min-h-0 flex-1 overflow-y-auto">
-				<RouterView />
+				<RouterView :key="$route.matched[0]?.path" />
 			</main>
 		</div>
 		<CommandPalette />

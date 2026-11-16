@@ -21,8 +21,10 @@ const props = defineProps<{
 	restricted?: boolean;
 	/** Show the value as money in this currency (compact). */
 	currency?: string | null;
+	/** Appended to the value, e.g. "%". */
+	suffix?: string;
 }>();
-const shown = computed(() => (props.currency ? fmtMoney(props.value, props.currency, true) : fmtNumber(props.value)));
+const shown = computed(() => (props.currency ? fmtMoney(props.value, props.currency, true) : fmtNumber(props.value) + (props.suffix && props.value != null ? props.suffix : "")));
 
 const unavailable = computed(() => !props.loading && !props.restricted && (props.value === null || props.value === undefined));
 const deltaTone = computed(() => {
