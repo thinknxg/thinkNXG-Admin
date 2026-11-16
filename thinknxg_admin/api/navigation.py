@@ -6,6 +6,7 @@ Items the user may not open are never sent to the browser.
 
 ``status``
   live     - implemented in the thinkNXG shell
+  desk     - opens the native thinkNXG screen (``href``) in the Desk
   planned  - shell shows a clearly labelled roadmap page and a working link
              to the native Desk screen
 """
@@ -123,6 +124,9 @@ NAVIGATION = [
 ]
 
 
+INTERNAL_KEYS = ("admin", "children", "hr_only", "payroll")
+
+
 def _allowed(item: dict, admin: bool) -> bool:
 	if item.get("admin") and not admin:
 		return False
@@ -135,22 +139,31 @@ def _allowed(item: dict, admin: bool) -> bool:
 	return True
 
 
-def get_navigation() -> list[dict]:
+def filter_sections(sections: list[dict], extra=None) -> list[dict]:
+	"""Drop every entry the user may not open. ``extra`` adds a center's own rule."""
 	admin = is_admin()
-	sections = []
-	for section in NAVIGATION:
+
+	def ok(item):
+		return _allowed(item, admin) and (extra is None or extra(item))
+
+	out = []
+	for section in sections:
 		items = []
 		for item in section["items"]:
-			if not _allowed(item, admin):
+			if not ok(item):
 				continue
-			entry = {k: v for k, v in item.items() if k not in ("admin", "children")}
-			children = [{k: v for k, v in c.items() if k != "admin"} for c in item.get("children", []) if _allowed(c, admin)]
+			entry = {k: v for k, v in item.items() if k not in INTERNAL_KEYS}
+			children = [{k: v for k, v in c.items() if k not in INTERNAL_KEYS} for c in item.get("children", []) if ok(c)]
 			if children:
 				entry["children"] = children
 			items.append(entry)
 		if items:
-			sections.append({"section": section["section"], "items": items})
-	return sections
+			out.append({"section": section["section"], "items": items})
+	return out
+
+
+def get_navigation() -> list[dict]:
+	return filter_sections(NAVIGATION)
 
 
 def get_app_launcher() -> list[dict]:

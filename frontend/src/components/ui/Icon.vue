@@ -7,6 +7,7 @@ import {
 	LifeBuoy, ListChecks, LogOut, Menu, Monitor, Moon, Network, PanelLeft, PanelsTopLeft, Plug, Plus, RefreshCw,
 	ScrollText, Search, Server, Settings, ShieldAlert, ShieldCheck, SlidersHorizontal, Sparkles, Star, Sun, Target,
 	Terminal, Timer, TriangleAlert, User, UserRound, Users, Warehouse, Workflow, X, Cpu, Layers, Info, Circle,
+	Briefcase, UsersRound, Landmark, ShoppingCart, ShoppingBag, Package, Factory, Handshake, FolderKanban, Box, BadgeCheck, ArrowLeftRight, Stamp, Receipt, Banknote, ClipboardList, Truck, UserPlus, UserSearch, CalendarCheck, Plane, Wallet, Route, Trophy, GraduationCap, CalendarPlus, MessagesSquare, LogIn, Filter, Calendar, Lock, House,
 } from "lucide-vue-next";
 
 const map: Record<string, any> = {
@@ -24,6 +25,7 @@ const map: Record<string, any> = {
 	target: Target, terminal: Terminal, timer: Timer, "triangle-alert": TriangleAlert, user: User,
 	"user-round": UserRound, users: Users, warehouse: Warehouse, workflow: Workflow, x: X, cpu: Cpu, layers: Layers,
 	info: Info, circle: Circle, role: ShieldCheck,
+	"briefcase": Briefcase, "users-round": UsersRound, "landmark": Landmark, "shopping-cart": ShoppingCart, "shopping-bag": ShoppingBag, "package": Package, "factory": Factory, "handshake": Handshake, "folder-kanban": FolderKanban, "box": Box, "badge-check": BadgeCheck, "arrow-left-right": ArrowLeftRight, "stamp": Stamp, "receipt": Receipt, "banknote": Banknote, "clipboard-list": ClipboardList, "truck": Truck, "user-plus": UserPlus, "user-search": UserSearch, "calendar-check": CalendarCheck, "plane": Plane, "wallet": Wallet, "route": Route, "trophy": Trophy, "graduation-cap": GraduationCap, "calendar-plus": CalendarPlus, "messages-square": MessagesSquare, "log-in": LogIn, "filter": Filter, "calendar": Calendar, "lock": Lock, "house": House,
 };
 
 const props = withDefaults(defineProps<{ name?: string; size?: number; strokeWidth?: number }>(), { size: 16, strokeWidth: 1.75 });

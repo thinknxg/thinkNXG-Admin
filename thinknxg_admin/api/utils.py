@@ -23,7 +23,7 @@ def admin_roles() -> set[str]:
 			roles.update(
 				frappe.get_all(
 					"thinkNXG Admin Role",
-					filters={"parent": "thinkNXG Admin Settings", "parenttype": "thinkNXG Admin Settings"},
+					filters={"parent": "thinkNXG Admin Settings", "parenttype": "thinkNXG Admin Settings", "parentfield": "admin_roles"},
 					pluck="role",
 				)
 			)

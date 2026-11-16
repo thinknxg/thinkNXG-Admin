@@ -6,7 +6,9 @@ import Icon from "@/components/ui/Icon.vue";
 import NxgMenu from "@/components/ui/NxgMenu.vue";
 import MenuItem from "@/components/ui/MenuItem.vue";
 import NxgAvatar from "@/components/ui/NxgAvatar.vue";
-import { boot, findNavByRoute } from "@/data/boot";
+import ContextFilters from "@/components/shell/ContextFilters.vue";
+import { allNavItems, boot, findNavByRoute } from "@/data/boot";
+import { activeCenter } from "@/data/centers";
 import { shell } from "@/data/shell";
 import { setTheme, themeMode, type ThemeMode } from "@/composables/useTheme";
 import { timeAgo } from "@/composables/format";
@@ -16,16 +18,29 @@ const route = useRoute();
 const b = computed(() => boot.data!);
 
 const crumbs = computed(() => {
+	const c = activeCenter.value;
+	const home = c ? { label: c.label, to: c.route } : { label: "My Workspace", to: "/my-workspace" };
+	const out: { label: string; to?: string }[] = [home];
 	const item = findNavByRoute(route.path);
-	const out: { label: string; to?: string }[] = [{ label: "Command Center", to: "/" }];
-	if (item && item.route !== "/") {
-		const parent = b.value.navigation.flatMap((s) => s.items).find((i) => i.children?.some((c) => c.key === item.key));
+	if (item && item.route !== home.to) {
+		const parent = allNavItems().find((i) => i.children?.some((ch) => ch.key === item.key));
 		if (parent && parent.route !== item.route) out.push({ label: parent.label, to: parent.route });
 		out.push({ label: item.label });
-	} else if (route.path !== "/") {
-		out.push({ label: "Not found" });
+	} else if (!item && route.path !== home.to) {
+		out.push({ label: (route.meta.title as string) || "Not found" });
 	}
 	return out;
+});
+
+const quick = computed(() => {
+	const c = activeCenter.value;
+	const mine = c?.quick_create || [];
+	const seen = new Set(mine.map((q) => q.doctype));
+	const others = b.value.centers
+		.filter((o) => o.key !== c?.key)
+		.map((o) => ({ label: `More · ${o.short}`, items: o.quick_create.filter((q) => !seen.has(q.doctype) && (seen.add(q.doctype), true)) }))
+		.filter((g) => g.items.length);
+	return { mine, others };
 });
 
 // Notifications ------------------------------------------------------------
@@ -93,28 +108,24 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 		</button>
 
 		<div class="ml-auto flex items-center gap-0.5">
-			<!-- Quick create: only DocTypes the user may create -->
-			<NxgMenu v-if="b.quick_create.length" align="right" width="w-52">
+			<!-- Quick create: the active center's actions first; only DocTypes the user may create -->
+			<NxgMenu v-if="quick.mine.length || quick.others.length" align="right" width="w-60">
 				<template #trigger="{ toggle }">
 					<button class="nxg-btn nxg-btn-primary h-8 px-2.5" aria-label="Create new" @click="toggle"><Icon name="plus" :size="15" /><span class="hidden sm:inline">New</span></button>
 				</template>
-				<div class="px-2 pb-1 pt-1.5 nxg-micro">Create</div>
-				<MenuItem v-for="q in b.quick_create" :key="q.doctype" :label="q.doctype" :icon="q.icon" :href="q.route" />
+				<div class="nxg-scroll max-h-[420px] overflow-y-auto">
+					<div class="px-2 pb-1 pt-1.5 nxg-micro">{{ activeCenter ? `Create in ${activeCenter.short}` : "Create" }}</div>
+					<MenuItem v-for="q in quick.mine" :key="q.doctype" :label="q.doctype" :icon="q.icon" :href="q.route" />
+					<template v-for="g in quick.others" :key="g.label">
+						<div class="my-1 border-t border-nxg-border" />
+						<div class="px-2 pb-1 pt-1.5 nxg-micro">{{ g.label }}</div>
+						<MenuItem v-for="q in g.items" :key="q.doctype" :label="q.doctype" :icon="q.icon" :href="q.route" />
+					</template>
+				</div>
 			</NxgMenu>
 
-			<!-- Organisation selector -->
-			<NxgMenu v-if="b.companies.length" align="right" width="w-64" class="hidden md:block">
-				<template #trigger="{ toggle }">
-					<button class="nxg-btn nxg-btn-ghost h-8 max-w-[200px] px-2" title="Organisation" @click="toggle">
-						<Icon name="building-2" :size="15" />
-						<span class="truncate">{{ shell.company || "All companies" }}</span>
-						<Icon name="chevron-down" :size="13" />
-					</button>
-				</template>
-				<div class="px-2 pb-1 pt-1.5 nxg-micro">Organisation</div>
-				<MenuItem label="All companies" :active="!shell.company" @click="shell.company = null" />
-				<MenuItem v-for="c in b.companies" :key="c.name" :label="c.name" :hint="c.abbr" :active="shell.company === c.name" @click="shell.company = c.name" />
-			</NxgMenu>
+			<!-- Context filters declared by the active center -->
+			<ContextFilters />
 
 			<!-- Notifications + approvals -->
 			<NxgMenu align="right" width="w-[360px]">

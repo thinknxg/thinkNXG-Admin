@@ -29,7 +29,7 @@ website_route_rules = [
 # Keep dashboard figures fresh when the things they count change.
 _clear = "thinknxg_admin.api.cache.clear_dashboard_cache"
 doc_events = {
-	"User": {"on_update": _clear, "after_insert": _clear, "on_trash": _clear},
+	"User": {"on_update": _clear, "after_insert": _clear, "on_trash": [_clear, "thinknxg_admin.api.centers.on_user_trash"]},
 	"Role": {"on_update": _clear, "on_trash": _clear},
 	"Workspace": {"on_update": _clear, "on_trash": _clear},
 	"Company": {"after_insert": _clear, "on_trash": _clear},

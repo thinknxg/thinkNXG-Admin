@@ -1,0 +1,50 @@
+{
+ "actions": [],
+ "creation": "2026-11-16 13:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-11-16 13:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "thinkNXG Admin",
+ "name": "thinkNXG Center Landing",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1,
+ "field_order": [
+  "role",
+  "center",
+  "priority"
+ ],
+ "permissions": [],
+ "fields": [
+  {
+   "fieldname": "role",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Role",
+   "options": "Role",
+   "reqd": 1
+  },
+  {
+   "fieldname": "center",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Command Center",
+   "options": "admin\nerp\nhr",
+   "reqd": 1,
+   "description": "admin = Admin, erp = ERP, hr = HR"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Priority",
+   "default": "10",
+   "description": "Lower numbers are checked first"
+  }
+ ]
+}

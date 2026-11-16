@@ -57,3 +57,33 @@ Full audit and plan: "thinkNXG Admin Command Center — Audit & Architecture" (C
   own Version and Route History, workspaces filtered by role and blocked modules. Preference saves touch
   a fixed list of fields on the user's own record (language, time zone, theme, default workspace / app).
 - Non-admin desk users land on My Workspace; the Command Center stays admin-only.
+
+## Unified command centers — Phase A (shared foundation)
+
+Blueprint and approved checklist: "thinkNXG Unified Enterprise Command Center — Audit, Shared
+Architecture & ERP/HR Blueprint" (approved 16 Nov 2026).
+
+- **One SPA, many centers.** `api/centers.py` declares Admin, ERP and HR once each (label, route,
+  filters, navigation, quick actions, docs link). Boot sends only the centers the server grants,
+  so the switcher, palette and landing cannot offer anything the server would refuse.
+  Admin keeps every existing route; ERP owns `/erp/*`, HR owns `/hr/*`; Notifications,
+  My Workspace and Reports are shared and show the last center's sidebar.
+- **Gates are ours, not the apps' launcher checks.** `erpnext.check_app_permission` admits every desk
+  user and `hrms.hr.utils.check_app_permission` admits any employee who can read their own record.
+  ERP needs read on GL Entry, Sales Order, Purchase Order or Stock Ledger Entry ("limited" when any
+  KPI DocType is unreadable). HR needs HR User / HR Manager / roles from settings; otherwise a user
+  whose Employee record has active direct reports gets "team" access (direct reports only).
+- **Payroll** needs read on Payroll Entry (HR Manager by default) or a role in the new
+  "Payroll Roles" setting; HR User alone can read every slip, so it is not enough.
+- **Filters** (company, branch, department, fiscal year, date range) are declared per center and their
+  option lists come from `get_filter_options` via `frappe.get_list`, so User Permissions apply.
+  Companies are re-checked with `validate_company`. The ERP branch filter appears only when Branch is
+  an active Accounting Dimension.
+- **Preferences** (default center, last center, per-center filters and last page) live in
+  `thinkNXG User Preference`, one row per user, written only by `save_preferences` for the session
+  user; values are cleaned to a fixed key list. A local copy makes switching instant.
+- **Default landing**: the user's own choice, else the first matching "Default Landing by Role" row
+  (lower priority first), else Admin for administrators, else the first granted center, else
+  My Workspace. It applies only when `/thinknxg` itself is opened.
+- `admin_roles()` now filters by `parentfield`, because Admin Settings has several role tables.
+- ERP and HR homes show no figures yet; KPIs and sections land in Phases B–E.

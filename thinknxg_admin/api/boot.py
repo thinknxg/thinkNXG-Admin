@@ -1,7 +1,8 @@
 import frappe
 
 from thinknxg_admin import __version__
-from thinknxg_admin.api.navigation import get_app_launcher, get_navigation
+from thinknxg_admin.api.centers import default_center, get_centers, get_preferences, personal_navigation
+from thinknxg_admin.api.navigation import get_app_launcher
 from thinknxg_admin.api.utils import doctype_exists, has_field, is_admin, require_login
 
 BRAND = {
@@ -42,16 +43,6 @@ def _companies():
 		return []
 
 
-def _quick_create():
-	"""New-record shortcuts, only for DocTypes the user may create."""
-	candidates = [("User", "user"), ("Role", "role"), ("Company", "building-2"), ("Workspace", "panels-top-left"), ("Workflow", "workflow"), ("Webhook", "plug")]
-	return [
-		{"doctype": dt, "icon": icon, "route": f"/desk/{dt.lower().replace(' ', '-')}/new"}
-		for dt, icon in candidates
-		if doctype_exists(dt) and frappe.has_permission(dt, "create")
-	]
-
-
 def build_boot() -> dict:
 	user = frappe.session.user
 	info = frappe.db.get_value("User", user, ["full_name", "user_image", "email", "desk_theme"], as_dict=True) or {}
@@ -60,6 +51,8 @@ def build_boot() -> dict:
 	if default_company not in [c["name"] for c in companies]:
 		default_company = companies[0]["name"] if companies else None
 	settings = _settings()
+	centers = get_centers()
+	prefs = get_preferences()
 	brand = dict(BRAND)
 	if settings.get("product_name"):
 		brand["product"] = settings["product_name"]
@@ -75,9 +68,14 @@ def build_boot() -> dict:
 		},
 		"brand": brand,
 		"version": __version__,
-		"navigation": get_navigation(),
+		# Only the command centers the server grants; each carries its own
+		# navigation and quick actions, already filtered by permission.
+		"centers": centers,
+		"default_center": default_center(centers, prefs),
+		"preferences": prefs,
+		# Shown when the user has no command center at all.
+		"personal_navigation": personal_navigation(),
 		"apps": get_app_launcher(),
-		"quick_create": _quick_create(),
 		"companies": companies,
 		"default_company": default_company,
 		"show_classic_desk_link": bool(settings.get("show_classic_desk_link", 1)),

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { call } from "frappe-ui";
 import Icon from "@/components/ui/Icon.vue";
 import { allNavItems, boot } from "@/data/boot";
+import { activeCenter, entryRoute } from "@/data/centers";
 import { shell } from "@/data/shell";
 import { favorites, pushRecent, recent } from "@/composables/useRecent";
 import { setTheme, isDark } from "@/composables/useTheme";
@@ -59,15 +60,23 @@ const actions = computed<Entry[]>(() => {
 		{ id: "a-theme", group: "Actions", label: isDark.value ? "Switch to light theme" : "Switch to dark theme", icon: isDark.value ? "sun" : "moon", run: () => setTheme(isDark.value ? "light" : "dark") },
 		{ id: "a-shortcuts", group: "Actions", label: "Show keyboard shortcuts", icon: "command", run: () => (shell.shortcutsOpen = true) },
 	];
-	if (b.quick_create.some((q) => q.doctype === "User")) list.push({ id: "a-invite", group: "Actions", label: "Invite a user", icon: "users", route: "/desk/user-invitation/new" });
-	for (const q of b.quick_create) list.push({ id: "a-new-" + q.doctype, group: "Actions", label: `New ${q.doctype}`, icon: q.icon, route: q.route });
+	for (const c of b.centers)
+		if (c.key !== activeCenter.value?.key) list.push({ id: "c-" + c.key, group: "Command centers", label: `Switch to ${c.label}`, description: c.description, icon: c.icon, route: entryRoute(c) });
+	const creates = [...(activeCenter.value?.quick_create || []), ...b.centers.flatMap((c) => c.quick_create)];
+	const seen = new Set<string>();
+	if (creates.some((q) => q.doctype === "User")) list.push({ id: "a-invite", group: "Actions", label: "Invite a user", icon: "users", route: "/desk/user-invitation/new" });
+	for (const q of creates) {
+		if (seen.has(q.doctype)) continue;
+		seen.add(q.doctype);
+		list.push({ id: "a-new-" + q.doctype, group: "Actions", label: `New ${q.doctype}`, icon: q.icon, route: q.route });
+	}
 	if (b.show_classic_desk_link) list.push({ id: "a-desk", group: "Actions", label: "Open classic Desk", icon: "monitor", route: "/desk" });
 	return list;
 });
 
 const entries = computed<Entry[]>(() => {
 	const q = query.value.trim().toLowerCase();
-	const pages: Entry[] = allNavItems().map((i) => ({ id: "p-" + i.key, group: "Pages", label: i.label, description: i.status === "planned" ? "Planned" : undefined, icon: i.icon || "file-text", route: i.route }));
+	const pages: Entry[] = allNavItems().map((i) => ({ id: "p-" + i.key, group: "Pages", label: i.label, description: i.status === "planned" ? "Planned" : i.href ? "Opens in Desk" : undefined, icon: i.icon || "file-text", route: i.href || i.route }));
 	if (!q) {
 		const fav = favorites.value.map((f) => ({ id: "f-" + f.route, group: "Favorites", label: f.label, icon: f.icon || "star", route: f.route }));
 		const rec = recent.value.map((r) => ({ id: "r-" + r.route, group: "Recent", label: r.label, icon: r.icon || "clock", route: r.route }));

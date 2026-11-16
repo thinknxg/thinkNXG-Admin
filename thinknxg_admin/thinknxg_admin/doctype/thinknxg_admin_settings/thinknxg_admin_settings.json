@@ -3,27 +3,121 @@
  "creation": "2026-11-16 10:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": ["access_section", "admin_roles", "access_help", "dashboard_section", "dashboard_cache_seconds", "business_unit_source", "branding_section", "product_name", "show_classic_desk_link"],
+ "field_order": [
+  "access_section",
+  "admin_roles",
+  "access_help",
+  "centers_section",
+  "hr_roles",
+  "payroll_roles",
+  "landing_rules",
+  "dashboard_section",
+  "dashboard_cache_seconds",
+  "business_unit_source",
+  "branding_section",
+  "product_name",
+  "show_classic_desk_link"
+ ],
  "fields": [
-  {"fieldname": "access_section", "fieldtype": "Section Break", "label": "Access"},
-  {"description": "Users with System Manager always have access. Add further roles (for example a custom Security Administrator or Auditor role) that may open the Command Center.", "fieldname": "admin_roles", "fieldtype": "Table MultiSelect", "label": "Additional Admin Roles", "options": "thinkNXG Admin Role"},
-  {"fieldname": "access_help", "fieldtype": "HTML", "options": "<p class='text-muted small'>Access to every record is still governed by the standard role permissions. These roles only unlock the Command Center screens.</p>"},
-  {"fieldname": "dashboard_section", "fieldtype": "Section Break", "label": "Dashboard"},
-  {"default": "60", "description": "Seconds a dashboard panel is cached per user. 0 disables caching.", "fieldname": "dashboard_cache_seconds", "fieldtype": "Int", "label": "Dashboard Cache (seconds)", "non_negative": 1},
-  {"default": "Not configured", "fieldname": "business_unit_source", "fieldtype": "Select", "label": "Business Unit Source", "options": "Not configured\nDepartment Groups\nCost Center Groups"},
-  {"fieldname": "branding_section", "fieldtype": "Section Break", "label": "Branding"},
-  {"default": "thinkNXG ERP", "fieldname": "product_name", "fieldtype": "Data", "label": "Product Name"},
-  {"default": "1", "fieldname": "show_classic_desk_link", "fieldtype": "Check", "label": "Show Classic Desk Link"}
+  {
+   "fieldname": "access_section",
+   "fieldtype": "Section Break",
+   "label": "Access"
+  },
+  {
+   "description": "Users with System Manager always have access. Add further roles (for example a custom Security Administrator or Auditor role) that may open the Command Center.",
+   "fieldname": "admin_roles",
+   "fieldtype": "Table MultiSelect",
+   "label": "Additional Admin Roles",
+   "options": "thinkNXG Admin Role"
+  },
+  {
+   "fieldname": "access_help",
+   "fieldtype": "HTML",
+   "options": "<p class='text-muted small'>Access to every record is still governed by the standard role permissions. These roles only unlock the Command Center screens.</p>"
+  },
+  {
+   "fieldname": "centers_section",
+   "fieldtype": "Section Break",
+   "label": "Command Centers"
+  },
+  {
+   "fieldname": "hr_roles",
+   "fieldtype": "Table MultiSelect",
+   "label": "Extra HR Command Center Roles",
+   "options": "thinkNXG Admin Role",
+   "description": "HR User and HR Manager always have access. Add other roles that may open the HR Command Center."
+  },
+  {
+   "fieldname": "payroll_roles",
+   "fieldtype": "Table MultiSelect",
+   "label": "Payroll Roles",
+   "options": "thinkNXG Admin Role",
+   "description": "Roles that may see payroll totals. Users who can read Payroll Entry (HR Manager by default) always can."
+  },
+  {
+   "fieldname": "landing_rules",
+   "fieldtype": "Table",
+   "label": "Default Landing by Role",
+   "options": "thinkNXG Center Landing",
+   "description": "Which command center opens first. A user's own choice in the switcher overrides these rules."
+  },
+  {
+   "fieldname": "dashboard_section",
+   "fieldtype": "Section Break",
+   "label": "Dashboard"
+  },
+  {
+   "default": "60",
+   "description": "Seconds a dashboard panel is cached per user. 0 disables caching.",
+   "fieldname": "dashboard_cache_seconds",
+   "fieldtype": "Int",
+   "label": "Dashboard Cache (seconds)",
+   "non_negative": 1
+  },
+  {
+   "default": "Not configured",
+   "fieldname": "business_unit_source",
+   "fieldtype": "Select",
+   "label": "Business Unit Source",
+   "options": "Not configured\nDepartment Groups\nCost Center Groups"
+  },
+  {
+   "fieldname": "branding_section",
+   "fieldtype": "Section Break",
+   "label": "Branding"
+  },
+  {
+   "default": "thinkNXG ERP",
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "label": "Product Name"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_classic_desk_link",
+   "fieldtype": "Check",
+   "label": "Show Classic Desk Link"
+  }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-16 10:00:00.000000",
+ "modified": "2026-11-16 13:30:00.000000",
  "modified_by": "Administrator",
  "module": "thinkNXG Admin",
  "name": "thinkNXG Admin Settings",
  "owner": "Administrator",
  "permissions": [
-  {"create": 1, "delete": 1, "email": 1, "print": 1, "read": 1, "role": "System Manager", "share": 1, "write": 1}
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
  ],
  "sort_field": "creation",
  "sort_order": "DESC",

@@ -8,22 +8,30 @@ import CommandPalette from "@/components/shell/CommandPalette.vue";
 import ShortcutsDialog from "@/components/shell/ShortcutsDialog.vue";
 import NxgConfirm from "@/components/ui/NxgConfirm.vue";
 import Icon from "@/components/ui/Icon.vue";
-import { boot } from "@/data/boot";
+import { allNavItems, boot, getCenter, type CenterKey } from "@/data/boot";
+import { entryRoute } from "@/data/centers";
 import { shell } from "@/data/shell";
 import { useShortcuts } from "@/composables/useShortcuts";
 
 const router = useRouter();
 const preview = import.meta.env.VITE_MOCK === "1";
 const logoUrl = "/assets/frappe/images/thinkNXG-favicon.png";
-const canSee = (route: string) => boot.data?.navigation.some((s) => s.items.some((i) => i.route === route));
+const canSee = (route: string) => allNavItems().some((i) => i.route === route && !i.href);
+const goCenter = (key: CenterKey) => {
+	const c = getCenter(key);
+	if (c) router.push(entryRoute(c));
+};
 
 useShortcuts({
 	"mod+k": () => (shell.paletteOpen = !shell.paletteOpen),
 	"/": () => (shell.paletteOpen = true),
 	"?": () => (shell.shortcutsOpen = true),
 	"[": () => (shell.collapsed = !shell.collapsed),
+	"g a": () => goCenter("admin"),
+	"g e": () => goCenter("erp"),
+	"g h": () => goCenter("hr"),
 	"g c": () => canSee("/") && router.push("/"),
-	"g h": () => canSee("/system-health") && router.push("/system-health"),
+	"g s": () => canSee("/system-health") && router.push("/system-health"),
 	"g u": () => canSee("/users") && router.push("/users"),
 });
 const ready = computed(() => boot.ready && boot.data);

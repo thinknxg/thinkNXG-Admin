@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "creation": "2026-11-16 13:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-11-16 13:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "thinkNXG Admin",
+ "name": "thinkNXG User Preference",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:user",
+ "naming_rule": "By fieldname",
+ "track_changes": 0,
+ "field_order": [
+  "user",
+  "default_center",
+  "last_center",
+  "state"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1,
+   "unique": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "default_center",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Default Command Center",
+   "options": "\nadmin\nerp\nhr"
+  },
+  {
+   "fieldname": "last_center",
+   "fieldtype": "Select",
+   "label": "Last Command Center",
+   "options": "\nadmin\nerp\nhr",
+   "read_only": 1
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Code",
+   "label": "Saved Filters",
+   "options": "JSON",
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "create": 0,
+   "delete": 1,
+   "read": 1,
+   "write": 1,
+   "role": "System Manager",
+   "report": 1
+  }
+ ],
+ "title_field": "user"
+}

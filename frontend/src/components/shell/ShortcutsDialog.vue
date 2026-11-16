@@ -4,8 +4,10 @@ import Icon from "@/components/ui/Icon.vue";
 const rows = [
 	["Ctrl / ⌘ K", "Open the command palette"],
 	["/", "Search"],
-	["G then C", "Go to Command Center"],
-	["G then H", "Go to System Health"],
+	["G then A", "Open the Admin Command Center"],
+	["G then E", "Open the ERP Command Center"],
+	["G then H", "Open the HR Command Center"],
+	["G then S", "Go to System Health"],
 	["G then U", "Go to Users & Access"],
 	["[", "Collapse or expand the sidebar"],
 	["?", "Show this list"],

@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
-import { allNavItems, boot } from "@/data/boot";
+import { createRouter, createWebHistory, START_LOCATION, type RouteRecordRaw } from "vue-router";
+import { allNavItems, boot, getCenter } from "@/data/boot";
 import { pushRecent } from "@/composables/useRecent";
 
 const routes: RouteRecordRaw[] = [
@@ -22,23 +22,31 @@ const routes: RouteRecordRaw[] = [
 	{ path: "/my-workspace", component: () => import("@/pages/MyWorkspacePage.vue"), meta: { title: "My Workspace" } },
 	{ path: "/configuration", component: () => import("@/pages/ConfigurationPage.vue"), meta: { admin: true, title: "System Configuration" } },
 	{ path: "/reports", component: () => import("@/pages/ReportsPage.vue"), meta: { title: "Reports & Analytics" } },
+	{ path: "/erp", component: () => import("@/pages/CenterHome.vue"), props: { centerKey: "erp" }, meta: { center: "erp", title: "ERP Command Center" } },
+	{ path: "/hr", component: () => import("@/pages/CenterHome.vue"), props: { centerKey: "hr" }, meta: { center: "hr", title: "HR Command Center" } },
 	// Every other registry route is resolved at runtime against the server-filtered navigation.
 	{ path: "/:pathMatch(.*)*", name: "dynamic", component: () => import("@/pages/Planned.vue") },
 ];
 
 export const router = createRouter({ history: createWebHistory("/thinknxg"), routes, scrollBehavior: () => ({ top: 0 }) });
 
-router.beforeEach((to) => {
+/** Where a user lands: their default center, else My Workspace. */
+export function landingRoute(): string {
+	const c = getCenter(boot.data?.default_center);
+	return c ? c.route : "/my-workspace";
+}
+
+const CENTER_PREFIX: Record<string, string> = { "/erp": "erp", "/hr": "hr" };
+
+router.beforeEach((to, from) => {
 	const data = boot.data;
 	if (!data) return true;
-	// UX guard only - the server refuses the data anyway (require_admin).
-	if (to.meta.admin && !data.user.is_admin) {
-		// Everyone has My Workspace; it is the landing page for non-admins.
-		return allNavItems().some((i) => i.route === "/my-workspace") ? "/my-workspace" : "/notifications";
-	}
-	if (to.name === "dynamic" && !allNavItems().some((i) => i.route === to.path)) {
-		return true; // Planned.vue shows "not available" when the route isn't in the user's navigation
-	}
+	// Opening /thinknxg itself goes to the user's default command center.
+	if (from === START_LOCATION && to.path === "/" && landingRoute() !== "/") return landingRoute();
+	// UX guards only - every endpoint refuses on the server anyway.
+	if (to.meta.admin && !data.user.is_admin) return landingRoute() === "/" ? "/my-workspace" : landingRoute();
+	const prefix = Object.keys(CENTER_PREFIX).find((p) => to.path === p || to.path.startsWith(p + "/"));
+	if (prefix && !getCenter(CENTER_PREFIX[prefix])) return landingRoute() === to.path ? "/my-workspace" : landingRoute();
 	return true;
 });
 
