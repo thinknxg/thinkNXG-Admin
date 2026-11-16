@@ -16,7 +16,7 @@ const roles = ref<string[]>([]);
 async function load() {
 	loading.value = true;
 	try {
-		const res = await call("thinknxg_admin.api.roles.list_role_profiles");
+		const res = (await call("thinknxg_admin.api.roles.list_role_profiles")) as any[] | null;
 		unavailable.value = res === null;
 		profiles.value = res || [];
 	} catch (e) {

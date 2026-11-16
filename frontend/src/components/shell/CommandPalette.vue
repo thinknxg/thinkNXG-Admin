@@ -45,7 +45,10 @@ watch(query, (q) => {
 		try {
 			const rows: any[] = await call("thinknxg_admin.api.search.search", { query: q.trim(), limit: 6 });
 			if (mine !== seq) return;
-			remote.value = rows.map((r, i) => ({ id: `r${i}${r.route}`, group: r.type === "DocType" ? "DocTypes" : r.type + "s", label: r.label, description: r.description, icon: r.icon, route: r.route }));
+			// Records from the center you are in come first.
+			const here = activeCenter.value?.key;
+			const ordered = [...rows].sort((a, b) => Number(b.center === here) - Number(a.center === here));
+			remote.value = ordered.map((r, i) => ({ id: `r${i}${r.route}`, group: r.group || (r.type === "DocType" ? "DocTypes" : r.type + "s"), label: r.label, description: r.description, icon: r.icon, route: r.route }));
 		} catch {
 			if (mine === seq) remote.value = [];
 		} finally {
@@ -139,7 +142,7 @@ function scrollActive() {
 							ref="input"
 							v-model="query"
 							class="h-12 flex-1 border-0 bg-transparent p-0 text-[15px] text-nxg-text placeholder:text-nxg-text-3 focus:ring-0"
-							placeholder="Search pages, users, DocTypes, reports, workspaces…"
+							placeholder="Search pages, records, people, reports and settings…"
 							aria-label="Search"
 							role="combobox"
 							aria-expanded="true"

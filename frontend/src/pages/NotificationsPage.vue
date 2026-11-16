@@ -6,6 +6,7 @@ import NxgAvatar from "@/components/ui/NxgAvatar.vue";
 import NxgSwitch from "@/components/ui/NxgSwitch.vue";
 import NxgDrawer from "@/components/ui/NxgDrawer.vue";
 import NxgEmpty from "@/components/ui/NxgEmpty.vue";
+import NxgTabs from "@/components/ui/NxgTabs.vue";
 import Icon from "@/components/ui/Icon.vue";
 import { errorMessage, runAction } from "@/data/api";
 import { fmtDateTime, parseFrappe, timeAgo } from "@/composables/format";
@@ -13,6 +14,11 @@ import { fmtDateTime, parseFrappe, timeAgo } from "@/composables/format";
 const API = "thinknxg_admin.api.notifications.";
 const CORE = "frappe.desk.doctype.notification_log.notification_log.";
 const type = ref("");
+const category = ref("");
+const categoryTabs = computed(() => [
+	{ key: "", label: "All", count: meta.value?.unread || null },
+	...(meta.value?.categories || ["Approvals", "Finance", "Operations", "People", "System"]).map((c: string) => ({ key: c, label: c, count: meta.value?.unread_by_category?.[c] || null })),
+]);
 const unreadOnly = ref(false);
 const rows = ref<any[]>([]);
 const meta = ref<any>(null);
@@ -25,7 +31,7 @@ async function load(append = false) {
 	loading.value = true;
 	error.value = null;
 	try {
-		const res: any = await call(API + "list_notifications", { type: type.value, unread_only: unreadOnly.value ? 1 : 0, start: append ? start.value : 0, page_length: PAGE });
+		const res: any = await call(API + "list_notifications", { type: type.value, category: category.value || null, unread_only: unreadOnly.value ? 1 : 0, start: append ? start.value : 0, page_length: PAGE });
 		if (res === null) {
 			meta.value = { unavailable: true };
 			return;
@@ -39,7 +45,7 @@ async function load(append = false) {
 		loading.value = false;
 	}
 }
-watch([type, unreadOnly], () => load());
+watch([type, category, unreadOnly], () => load());
 onMounted(() => load());
 function more() {
 	start.value += PAGE;
@@ -111,13 +117,14 @@ const settingRows = [
 
 <template>
 	<div class="mx-auto w-full max-w-[960px] px-4 pb-10 pt-6 sm:px-6">
-		<PageHeader title="Notifications" description="Mentions, assignments, shares and alerts sent to you.">
+		<PageHeader title="Notifications" description="Approvals, mentions, assignments and alerts from every command center, sent to you.">
 			<button class="nxg-btn nxg-btn-secondary" :disabled="!meta?.unread" @click="markAll"><Icon name="check" :size="14" />Mark all read</button>
 			<button class="nxg-btn nxg-btn-secondary" @click="openSettings"><Icon name="settings" :size="14" />Settings</button>
 		</PageHeader>
 
 		<div v-if="meta?.unavailable" class="nxg-panel p-8 text-center text-[13px] text-nxg-text-2">Notifications are not available on this site.</div>
 		<div v-else class="nxg-panel">
+			<div class="px-3 pt-1"><NxgTabs :tabs="categoryTabs" :model-value="category" @update:model-value="(v: string) => (category = v)" /></div>
 			<div class="flex flex-wrap items-center gap-2 border-b border-nxg-border p-3">
 				<div class="flex flex-wrap gap-1" role="group" aria-label="Notification type">
 					<button class="h-7 rounded-nxg-sm px-2.5 text-[12.5px] font-medium" :class="!type ? 'bg-nxg-primary text-nxg-primary-fg' : 'text-nxg-text-2 hover:bg-nxg-surface-2'" @click="type = ''">All<span v-if="meta?.unread" class="nxg-tnum ml-1 opacity-80">{{ meta.unread }}</span></button>
@@ -141,7 +148,7 @@ const settingRows = [
 							</div>
 							<button class="min-w-0 flex-1 text-left" @click="open(n)">
 								<p class="text-[13.5px] leading-5" :class="n.read ? 'text-nxg-text-2' : 'font-medium text-nxg-text'">{{ n.subject }}</p>
-								<p class="mt-0.5 text-[12px] text-nxg-text-3"><span v-if="n.type">{{ n.type }} · </span><span v-if="n.document_type">{{ n.document_type }} {{ n.document_name }} · </span><span :title="fmtDateTime(n.creation)">{{ timeAgo(n.creation) }}</span></p>
+								<p class="mt-0.5 text-[12px] text-nxg-text-3"><span v-if="n.category && !category">{{ n.category }} · </span><span v-if="n.type">{{ n.type }} · </span><span v-if="n.document_type">{{ n.document_type }} {{ n.document_name }} · </span><span :title="fmtDateTime(n.creation)">{{ timeAgo(n.creation) }}</span></p>
 							</button>
 							<button v-if="!n.read" class="nxg-btn nxg-btn-ghost h-7 shrink-0 px-2 text-[12px] opacity-0 group-hover:opacity-100 focus:opacity-100" @click="markRead(n)">Mark read</button>
 							<span v-if="!n.read" class="mt-2 h-2 w-2 shrink-0 rounded-full bg-nxg-red" aria-label="Unread" />

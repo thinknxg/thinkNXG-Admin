@@ -8,7 +8,7 @@ module adds the role-centric reads and the role/profile writes around them.
 
 import frappe
 from frappe import _
-from frappe.permissions import add_permission, get_all_perms, setup_custom_perms
+from frappe.permissions import get_all_perms, setup_custom_perms
 from frappe.utils import cint
 
 from thinknxg_admin.api.cache import clear_dashboard_cache

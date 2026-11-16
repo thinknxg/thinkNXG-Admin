@@ -7,7 +7,7 @@ preferences. Nothing reads another user's data.
 
 import frappe
 from frappe import _
-from frappe.utils import cint, getdate, nowdate
+from frappe.utils import getdate, nowdate
 
 from thinknxg_admin.api.utils import desk_route, doctype_exists, has_field, require_login, slug
 

@@ -44,7 +44,7 @@ const quick = computed(() => {
 });
 
 // Notifications ------------------------------------------------------------
-interface Notif { name: string; subject: string; from_name?: string; read: number; creation: string; route?: string | null; type?: string }
+interface Notif { name: string; subject: string; from_name?: string; read: number; creation: string; route?: string | null; type?: string; category?: string }
 const notifs = ref<{ items: Notif[]; unread: number; open_todos: number } | null>(null);
 const notifError = ref<string | null>(null);
 async function loadNotifications() {
@@ -150,7 +150,7 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 						<NxgAvatar :name="n.from_name" :size="24" />
 						<span class="min-w-0 flex-1">
 							<span class="line-clamp-2 text-[12.5px]" :class="n.read ? 'text-nxg-text-2' : 'text-nxg-text'">{{ n.subject }}</span>
-							<span class="text-[11.5px] text-nxg-text-3">{{ timeAgo(n.creation) }}</span>
+							<span class="text-[11.5px] text-nxg-text-3"><template v-if="n.category">{{ n.category }} · </template>{{ timeAgo(n.creation) }}</span>
 						</span>
 						<span v-if="!n.read" class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-nxg-red" aria-label="Unread" />
 					</button>

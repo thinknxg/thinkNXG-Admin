@@ -24,7 +24,7 @@ async function load() {
 	loading.value = true;
 	error.value = null;
 	try {
-		const res = await call(API + "list_invitations", {});
+		const res = (await call(API + "list_invitations", {})) as any[] | null;
 		unavailable.value = res === null;
 		rows.value = res || [];
 	} catch (e) {

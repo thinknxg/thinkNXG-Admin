@@ -229,14 +229,17 @@ const responses: Record<string, (args: any) => any> = {
 	"thinknxg_admin.api.notifications.get_notifications": () => ({
 		unread: 2, open_todos: 3,
 		items: [
-			{ name: "n1", subject: "Rahul Menon assigned you a task: Review new joiner access for Finance", from_name: "Rahul Menon", read: 0, creation: ago(30) },
-			{ name: "n2", subject: "Leave Application HR-LAP-2026-00412 is awaiting your approval", from_name: "Fatma Al Hinai", read: 0, creation: ago(36) },
-			{ name: "n3", subject: "Noor Al Balushi mentioned you on Purchase Order PUR-ORD-2026-00188", from_name: "Noor Al Balushi", read: 1, creation: ago(400) },
+			{ name: "n1", subject: "Rahul Menon assigned you a task: Review new joiner access for Finance", from_name: "Rahul Menon", read: 0, creation: ago(30), category: "System" },
+			{ name: "n2", subject: "Leave Application HR-LAP-2026-00412 is awaiting your approval", from_name: "Fatma Al Hinai", read: 0, creation: ago(36), category: "Approvals" },
+			{ name: "n3", subject: "Noor Al Balushi mentioned you on Purchase Order PUR-ORD-2026-00188", from_name: "Noor Al Balushi", read: 1, creation: ago(400), category: "Operations" },
 		],
 	}),
 	"thinknxg_admin.api.search.search": (a) => [
-		{ type: "DocType", label: "Sales Invoice", description: "Accounts", route: "/desk/sales-invoice", icon: "file-text" },
-		{ type: "User", label: "Rahul Menon", description: "rahul@example.com", route: "/desk/user/rahul", icon: "user" },
+		{ type: "DocType", group: "DocTypes", label: "Sales Invoice", description: "Accounts", route: "/desk/sales-invoice", icon: "file-text" },
+		{ type: "User", group: "Users", label: "Rahul Menon", description: "rahul@example.com", route: "/desk/user/rahul", icon: "user" },
+		{ type: "Customer", group: "ERP · Customer", center: "erp", label: "Al Noor Contracting", description: "CUST-00041", route: "#", icon: "user-round" },
+		{ type: "Sales Invoice", group: "ERP · Sales Invoice", center: "erp", label: "Al Noor Contracting", description: "ACC-SINV-2026-00733", route: "#", icon: "receipt" },
+		{ type: "Employee", group: "HR · Employee", center: "hr", label: "Ahmed Al Rawahi", description: "HR-EMP-00112", route: "#", icon: "users" },
 	].filter((r) => r.label.toLowerCase().includes(String(a.query || "").toLowerCase().slice(0, 2))),
 };
 
@@ -270,13 +273,13 @@ Object.assign(responses, {
 });
 
 Object.assign(responses, {
-	"thinknxg_admin.api.notifications.list_notifications": () => ({ total: 6, unread: 3, unread_by_type: { Assignment: 1, Mention: 1, Alert: 1 }, types: ["Alert", "Assignment", "Mention", "Share"], rows: [
-		{ name: "n1", type: "Assignment", subject: "Rahul Menon assigned you Review new joiner access for Finance", from_name: "Rahul Menon", read: 0, creation: ago(30), document_type: "ToDo", document_name: "TD-0091", route: "#" },
-		{ name: "n2", type: "Mention", subject: "Fatma Al Hinai mentioned you on Purchase Order PUR-ORD-2026-00188: “can you approve the revised quantity?”", from_name: "Fatma Al Hinai", read: 0, creation: ago(95), document_type: "Purchase Order", document_name: "PUR-ORD-2026-00188", route: "#" },
-		{ name: "n3", type: "Alert", subject: "Failed background job: erpnext.stock.reorder_item.reorder_item", from_name: "Administrator", read: 0, creation: ago(300), route: "#" },
-		{ name: "n4", type: "Share", subject: "Noor Al Balushi shared Payroll Entry HR-PRUN-2026-00011 with you", from_name: "Noor Al Balushi", read: 1, creation: ago(1600), route: "#" },
-		{ name: "n5", type: "Mention", subject: "Omar Al Said mentioned you on Stock Entry MAT-STE-2026-00412", from_name: "Omar Al Said", read: 1, creation: ago(3200), route: "#" },
-		{ name: "n6", type: "Assignment", subject: "Sara Al Kindi assigned you Quarterly access review", from_name: "Sara Al Kindi", read: 1, creation: ago(7000), route: "#" } ] }),
+	"thinknxg_admin.api.notifications.list_notifications": () => ({ total: 6, unread: 3, unread_by_type: { Assignment: 1, Mention: 1, Alert: 1 }, categories: ["Approvals", "Finance", "Operations", "People", "System"], unread_by_category: { Approvals: 1, Finance: 0, Operations: 1, People: 0, System: 1 }, types: ["Alert", "Assignment", "Mention", "Share"], rows: [
+		{ name: "n1", category: "System", type: "Assignment", subject: "Rahul Menon assigned you Review new joiner access for Finance", from_name: "Rahul Menon", read: 0, creation: ago(30), document_type: "ToDo", document_name: "TD-0091", route: "#" },
+		{ name: "n2", category: "Approvals", type: "Mention", subject: "Fatma Al Hinai mentioned you on Purchase Order PUR-ORD-2026-00188: “can you approve the revised quantity?”", from_name: "Fatma Al Hinai", read: 0, creation: ago(95), document_type: "Purchase Order", document_name: "PUR-ORD-2026-00188", route: "#" },
+		{ name: "n3", category: "System", type: "Alert", subject: "Failed background job: erpnext.stock.reorder_item.reorder_item", from_name: "Administrator", read: 0, creation: ago(300), route: "#" },
+		{ name: "n4", category: "People", type: "Share", subject: "Noor Al Balushi shared Payroll Entry HR-PRUN-2026-00011 with you", from_name: "Noor Al Balushi", read: 1, creation: ago(1600), route: "#" },
+		{ name: "n5", category: "Operations", type: "Mention", subject: "Omar Al Said mentioned you on Stock Entry MAT-STE-2026-00412", from_name: "Omar Al Said", read: 1, creation: ago(3200), route: "#" },
+		{ name: "n6", category: "System", type: "Assignment", subject: "Sara Al Kindi assigned you Quarterly access review", from_name: "Sara Al Kindi", read: 1, creation: ago(7000), route: "#" } ] }),
 	"thinknxg_admin.api.audit.get_summary": () => ({ logins: 1286, failed_logins: 14, permission_changes: 9, access_changes: 23, config_changes: 14, exports: 31, api_requests: null, api_logging_enabled: false, top_failed_users: [{ user: "ops@example.com", n: 9 }, { user: "temp.contractor@example.com", n: 3 }], top_failed_ips: [{ ip: "10.0.9.3", n: 9 }, { ip: "185.22.14.7", n: 4 }] }),
 	"thinknxg_admin.api.audit.get_events": () => ({ has_more: true, window_capped: false, categories: {}, rows: [
 		{ id: "e1", source: "Version", category: "access_control", actor_name: "Sample Admin", action: "Changed Enabled", resource_type: "User", resource: "temp.contractor@example.com", timestamp: ago(18), result: "Success", route: "#", changes: [{ field: "Enabled", old: "1", new: "0" }] },

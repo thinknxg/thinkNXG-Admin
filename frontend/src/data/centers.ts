@@ -1,6 +1,6 @@
 import { computed, reactive, watch } from "vue";
 import { call } from "frappe-ui";
-import { boot, getCenter, type Center, type CenterKey, type CenterState, type NavSection } from "@/data/boot";
+import { boot, getCenter, type Center, type CenterKey, type CenterState, type NavSection, type Preferences } from "@/data/boot";
 import { readPref, writePref } from "@/composables/storage";
 import { router } from "@/router";
 
@@ -90,7 +90,7 @@ watch(
 export async function setDefaultCenter(key: CenterKey | null) {
 	if (!boot.data) return;
 	if (import.meta.env.VITE_MOCK !== "1") {
-		const prefs = await call("thinknxg_admin.api.centers.save_preferences", { default_center: key || "" });
+		const prefs = (await call("thinknxg_admin.api.centers.save_preferences", { default_center: key || "" })) as Preferences;
 		boot.data.preferences = prefs;
 	} else {
 		boot.data.preferences.default_center = key;

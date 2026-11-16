@@ -1,9 +1,14 @@
 # thinkNXG Admin — Command Center
 
-Premium administration shell for **thinkNXG Core**, **thinkNXG ERP** and **thinkNXG HR** (V16).
-It opens at **`/thinknxg`**, next to the classic Desk at `/desk`, which it leaves untouched.
+Unified enterprise command centers for **thinkNXG Core**, **thinkNXG ERP** and **thinkNXG HR** (V16):
+**Admin** at `/thinknxg`, **ERP** at `/thinknxg/erp` and **HR** at `/thinknxg/hr`, in one app with one
+design system. The classic Desk at `/desk` is left untouched.
 
-Release 16.3: application shell, Command Center and System Health (Phases 4–5); Users & Access, Roles & Permissions, Organization, Workspaces and Apps & Modules (Phase 6); Integrations, Automation, Audit & Compliance, Developer Tools and the Notification Center (Phase 7); System Configuration, Reports & Analytics and My Workspace (Phase 8). Every menu item is now a working screen.
+Release 16.4: the Admin Command Center is joined by the **ERP** and **HR Command Centers**, a command
+center switcher, role-based default landing, ERP and HR approvals, a team view for managers, search
+across all centers and notification categories. See [CHANGELOG.md](CHANGELOG.md).
+
+Earlier, release 16.3: application shell, Command Center and System Health (Phases 4–5); Users & Access, Roles & Permissions, Organization, Workspaces and Apps & Modules (Phase 6); Integrations, Automation, Audit & Compliance, Developer Tools and the Notification Center (Phase 7); System Configuration, Reports & Analytics and My Workspace (Phase 8). Every menu item is now a working screen.
 
 ## Install
 
@@ -17,8 +22,31 @@ bench --site <site> clear-cache
 
 Open `https://<site>/thinknxg`, or use the **Command Center** tile on the `/desk` apps screen.
 
-Requirements: thinkNXG Framework (Frappe) 16.x. ERP and HR are optional; every ERP/HR figure
-shows "Not available" when that app is not installed.
+Requirements: thinkNXG Framework 16.x. thinkNXG ERP and thinkNXG HR are optional: their command
+centers appear only when the app is installed and the user has access. Run `bench --site <site> migrate`
+after updating, because 16.4 adds two DocTypes.
+
+Documentation: [thinkNXG Framework](https://docs.thinknxg.com/thinknxgframework) ·
+[thinkNXG ERP](https://docs.thinknxg.com/thinknxgerp) · [thinkNXG HR](https://docs.thinknxg.com/thinknxghr) ·
+Support: [thinkDesk](https://thinknxg.com/thinkdesk)
+
+## Command centers
+
+| Center | Who gets it | What it shows |
+| --- | --- | --- |
+| Admin `/thinknxg` | System Manager and roles listed in thinkNXG Admin Settings | Everything below under "What's included" |
+| ERP `/thinknxg/erp` | Users who can read GL Entry, Sales Order, Purchase Order or Stock Ledger Entry | 10 KPIs (revenue, gross profit, receivables, payables, cash & bank, open sales and purchase orders, inventory value, unpaid invoices, pending approvals); Sales, Finance, Purchase, Inventory, Manufacturing, Projects and CRM sections; needs-your-attention list; Approvals with workflow actions |
+| HR `/thinknxg/hr` | HR User, HR Manager and roles set in settings; managers with direct reports get **My team** | 10 KPIs (headcount, active, joiners, on leave, present, absent, attendance rate, pending leave, open positions, pending approvals); Employees, Attendance, Leave, Payroll (payroll roles only, totals only), Recruitment, Performance and Lifecycle sections; HR Approvals for leave, expense and shift requests |
+
+- **Switcher** at the top of the sidebar: only permitted centers, with an access label (Full access, Limited,
+  My team). No page reload; each center keeps its own filters and last page. G then A / E / H.
+- **Filters** per center (company, branch, department, fiscal year, date range), with options read under
+  the user's permissions.
+- **Default landing** by role in settings ("Default Landing by Role"); users can override it in the switcher.
+- **Security**: every figure is read through the core query builder with permissions on. A figure the user
+  cannot read shows "Restricted" and no number is sent; approvals run through thinkNXG's own workflow
+  engine or, for HR requests, only for the named approver with their own submit permission.
+
 
 ## What's included
 
@@ -26,7 +54,7 @@ shows "Not available" when that app is not installed.
 | --- | --- |
 | Shell | Espresso sidebar with brand-red active marker, collapsible sections, nested items, app switcher (from each app's `add_to_apps_screen`), help/docs/what's-new, profile menu, collapse to icons, mobile drawer |
 | Top bar | Breadcrumbs, search pill, quick-create (only DocTypes you may create), organisation selector, notifications (Notification Log + open ToDos, mark read via Core methods), help, light/dark/system theme (saved to `User.desk_theme`) |
-| Command palette | Ctrl/⌘ K or `/`; pages, favourites, recents, actions, permission-checked server search of DocTypes, users, reports and workspaces |
+| Command palette | Ctrl/⌘ K or `/`; pages of every center, favourites, recents, center switching, create actions, permission-checked server search of DocTypes, users, reports, workspaces, ERP records (customers, suppliers, items, invoices, orders, projects, leads) and HR records (employees, job openings, applicants — HR roles only) |
 | Command Center | 8 KPIs, system activity chart, live health, users & access, organisation, pending actions, administrative activity timeline; 7/30/90-day range; company scope; Customize (per-user section visibility); Refresh |
 | System Health | Live checks (DB, Redis, queues, workers, scheduler, storage, errors, API round-trip), queue table, storage meter, on-demand V16 System Health Report |
 | Settings | `thinkNXG Admin Settings`: extra admin roles, cache seconds, business-unit source, product name, classic-Desk link |
