@@ -5,7 +5,7 @@ app_description = "Premium Admin Command Center for thinkNXG Core, thinkNXG ERP 
 app_email = "sales@kreatao.com"
 app_license = "mit"
 # The official mark ships with thinkNXG Core, so it exists on every thinkNXG site.
-app_logo_url = "/assets/frappe/images/thinkNXG-favicon.png"
+app_logo_url = "/assets/thinknxg_admin/images/brand/thinknxg-logo.png"
 
 # ERP and HR are optional: every ERP/HR-specific query is guarded.
 required_apps = ["frappe"]
@@ -14,7 +14,7 @@ required_apps = ["frappe"]
 add_to_apps_screen = [
 	{
 		"name": "thinknxg_admin",
-		"logo": "/assets/frappe/images/thinkNXG-favicon.png",
+		"logo": "/assets/thinknxg_admin/images/brand/thinknxg-logo.png",
 		"title": "Command Center",
 		"route": "/thinknxg",
 		"has_permission": "thinknxg_admin.api.boot.has_app_permission",

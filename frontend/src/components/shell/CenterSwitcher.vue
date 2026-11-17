@@ -54,7 +54,7 @@ async function makeDefault(c: Center) {
 				aria-haspopup="menu"
 				@click="toggle"
 			>
-				<img :src="b.brand.logo" alt="thinkNXG" class="h-8 w-8 shrink-0 rounded-[7px]" />
+				<img :src="b.brand.logo" alt="thinkNXG" class="h-8 w-8 shrink-0 object-contain" />
 				<span v-if="!collapsed" class="min-w-0 flex-1">
 					<span class="block truncate text-[13.5px] font-semibold leading-4 text-white">{{ b.brand.name }}</span>
 					<span class="block truncate text-[11.5px] leading-4 text-nxg-sb-muted">{{ activeCenter?.label || "My Workspace" }}</span>
@@ -107,7 +107,7 @@ async function makeDefault(c: Center) {
 		</template>
 	</NxgMenu>
 	<div v-else class="flex min-w-0 flex-1 items-center gap-2.5 p-1">
-		<img :src="b.brand.logo" alt="thinkNXG" class="h-8 w-8 shrink-0 rounded-[7px]" />
+		<img :src="b.brand.logo" alt="thinkNXG" class="h-8 w-8 shrink-0 object-contain" />
 		<span v-if="!collapsed" class="min-w-0 flex-1">
 			<span class="block truncate text-[13.5px] font-semibold leading-4 text-white">{{ b.brand.name }}</span>
 			<span class="block truncate text-[11.5px] leading-4 text-nxg-sb-muted">{{ activeCenter?.label || "My Workspace" }}</span>

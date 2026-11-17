@@ -15,7 +15,7 @@ import { useShortcuts } from "@/composables/useShortcuts";
 
 const router = useRouter();
 const preview = import.meta.env.VITE_MOCK === "1";
-const logoUrl = "/assets/frappe/images/thinkNXG-favicon.png";
+const logoUrl = boot.data?.brand.logo || "/assets/thinknxg_admin/images/brand/thinknxg-logo.png";
 const canSee = (route: string) => allNavItems().some((i) => i.route === route && !i.href);
 const goCenter = (key: CenterKey) => {
 	const c = getCenter(key);
@@ -39,7 +39,7 @@ const ready = computed(() => boot.ready && boot.data);
 
 <template>
 	<div v-if="!boot.ready" class="flex h-full items-center justify-center" aria-busy="true">
-		<img :src="logoUrl" alt="" class="h-10 w-10 animate-pulse rounded-nxg-lg" />
+		<img :src="logoUrl" alt="" class="h-10 w-10 animate-pulse object-contain" />
 	</div>
 	<div v-else-if="boot.error" class="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
 		<Icon name="circle-alert" :size="22" class="text-nxg-danger" />

@@ -1,5 +1,14 @@
 # Changelog
 
+## 16.5.3 — 18 November 2026
+
+### Fixed
+- The Command Center logo did not show: it pointed at an image in the framework's assets that is not
+  present on every site. The thinkNXG logo now ships with this app in
+  `public/images/brand/` (transparent PNGs from the supplied artwork) and is used for the sidebar,
+  loading screen, browser favicon (ICO, 16 and 32 px), home-screen icons (192, 512, Apple 180) and
+  the apps screen (`app_logo_url`, `add_to_apps_screen`).
+
 ## 16.5.2 — 17 November 2026
 
 ### Fixed

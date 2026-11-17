@@ -10,7 +10,8 @@ from thinknxg_admin.api.utils import doctype_exists, has_field, is_admin, requir
 BRAND = {
 	"name": "thinkNXG",
 	"product": "thinkNXG ERP",
-	"logo": "/assets/frappe/images/thinkNXG-favicon.png",
+	"logo": "/assets/thinknxg_admin/images/brand/thinknxg-logo.png",
+	"favicon": "/assets/thinknxg_admin/images/brand/favicon-32.png",
 	"docs_url": DOCS["erp"],
 	"support_url": SUPPORT_URL,
 	"whats_new_url": DOCS["erp"],
