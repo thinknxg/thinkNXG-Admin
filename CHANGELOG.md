@@ -1,5 +1,21 @@
 # Changelog
 
+## 16.5.2 — 17 November 2026
+
+### Fixed
+- New-document forms failed with `ImportError: workspace` (and the same for any one-word DocType such
+  as customer or item): the slug matched case-insensitively and was used as the DocType name.
+  `resolve_doctype()` now always returns the stored name.
+
+### Changed
+- One brand module (`api/brand.py`) holds every thinkNXG product name and link. App titles,
+  descriptions, app-screen entries and notification subjects pass through it, so Frappe, ERPNext,
+  Frappe HR / hrms, Frappe Cloud, Frappe CRM, Raven, Helpdesk, Frappe Insights and Frappe Cloud
+  Marketplace show as their thinkNXG names.
+- Help is now a menu: the active center's documentation and thinkNXG Support first, then thinkNXG ERP,
+  HR, Framework, CRM, Raven, thinkDesk and Cloud documentation, thinkNXG Cloud and thinkNXG Insights.
+- The Apps page links each app to its thinkNXG documentation.
+
 ## 16.5.1 — 17 November 2026
 
 ### Fixed

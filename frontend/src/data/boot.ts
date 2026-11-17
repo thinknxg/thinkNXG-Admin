@@ -47,7 +47,10 @@ export interface Registry {
 export interface Preferences { default_center: CenterKey | null; last_center: CenterKey | null; state: Partial<Record<CenterKey, CenterState>> }
 export interface Boot {
 	user: { name: string; full_name: string; email?: string; image?: string; theme?: string; roles: string[]; is_admin: boolean };
-	brand: { name: string; product: string; logo: string; docs_url: string; support_url: string; whats_new_url: string };
+	brand: {
+		name: string; product: string; logo: string; docs_url: string; support_url: string; whats_new_url: string;
+		docs?: Record<string, string>; help?: { key: string; label: string; url: string }[]; cloud_url?: string; insights_url?: string;
+	};
 	version: string;
 	centers: Center[];
 	registry: Registry;

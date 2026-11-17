@@ -32,13 +32,20 @@ PTYPES = ("read", "write", "create", "delete", "submit", "cancel", "amend", "pri
 
 
 def resolve_doctype(value: str) -> str:
-	"""A DocType name from its name or URL slug ("sales-invoice", "bom")."""
-	if value and doctype_exists(value):
-		return value
-	guess = (value or "").replace("-", " ").strip()
-	name = frappe.db.get_value("DocType", {"name": ["like", guess]}, "name") if guess else None
+	"""The exact DocType name for a name or URL slug ("sales-invoice", "workspace", "bom").
+
+	Database lookups ignore letter case, so a slug like "workspace" matches the
+	DocType "Workspace"; always return the stored name, never the input, or the
+	framework cannot find the DocType's controller.
+	"""
+	value = (value or "").strip()
+	name = None
+	if value:
+		name = frappe.db.get_value("DocType", value, "name")
+		if not name:
+			name = frappe.db.get_value("DocType", {"name": ["like", value.replace("-", " ")]}, "name")
 	if not name:
-		frappe.throw(_("{0} is not available on this site.").format(value or ""), frappe.DoesNotExistError)
+		frappe.throw(_("{0} is not available on this site.").format(value), frappe.DoesNotExistError)
 	return name
 
 

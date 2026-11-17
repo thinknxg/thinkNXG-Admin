@@ -3,6 +3,7 @@ import frappe
 from thinknxg_admin import __version__
 from thinknxg_admin.api.centers import center_levels, default_center, get_centers, get_preferences, personal_navigation
 from thinknxg_admin.api.routes import get_registry
+from thinknxg_admin.api.brand import DOCS, SUPPORT_URL, boot_links
 from thinknxg_admin.api.navigation import get_app_launcher
 from thinknxg_admin.api.utils import doctype_exists, has_field, is_admin, require_login
 
@@ -10,9 +11,10 @@ BRAND = {
 	"name": "thinkNXG",
 	"product": "thinkNXG ERP",
 	"logo": "/assets/frappe/images/thinkNXG-favicon.png",
-	"docs_url": "https://docs.thinknxg.com/thinknxgerp",
-	"support_url": "https://thinknxg.com/thinkdesk",
-	"whats_new_url": "https://docs.thinknxg.com/thinknxgerp",
+	"docs_url": DOCS["erp"],
+	"support_url": SUPPORT_URL,
+	"whats_new_url": DOCS["erp"],
+	**boot_links(),
 }
 
 

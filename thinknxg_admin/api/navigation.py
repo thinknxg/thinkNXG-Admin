@@ -13,6 +13,8 @@ Items the user may not open are never sent to the browser.
 
 import frappe
 
+from thinknxg_admin.api.brand import app_title, rebrand
+
 from thinknxg_admin.api.utils import is_admin
 
 NAVIGATION = [
@@ -180,7 +182,7 @@ def get_app_launcher() -> list[dict]:
 			apps.append({
 				"app": app,
 				"name": entry.get("name") or app,
-				"title": entry.get("title") or app,
+				"title": app_title(app, entry.get("title")) if entry.get("name") in (None, app) else rebrand(entry.get("title") or app),
 				"logo": entry.get("logo"),
 				"route": entry.get("route") or "/desk",
 			})

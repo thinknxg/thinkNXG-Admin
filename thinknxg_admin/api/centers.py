@@ -28,7 +28,7 @@ from thinknxg_admin.api.navigation import NAVIGATION, filter_sections
 from thinknxg_admin.api.routes import internal_route
 from thinknxg_admin.api.utils import doctype_exists, is_admin, require_login
 
-DOCS = "https://docs.thinknxg.com"
+from thinknxg_admin.api.brand import DOCS
 CENTER_KEYS = ("admin", "erp", "hr")
 SETTINGS = "thinkNXG Admin Settings"
 PREFERENCE = "thinkNXG User Preference"
@@ -72,21 +72,21 @@ CENTERS = {
 		"description": "Users, access, platform and governance", "route": "/admin",
 		"title": "Welcome to thinkNXG Command Center",
 		"subtitle": "Your premium administration command center.",
-		"docs_url": f"{DOCS}/thinknxgframework", "filters": ["company"],
+		"docs_url": DOCS["framework"], "filters": ["company"],
 	},
 	"erp": {
 		"label": "ERP Command Center", "short": "ERP", "icon": "briefcase",
 		"description": "Finance, sales, purchasing, stock and operations", "route": "/erp", "app": "erpnext",
 		"title": "Welcome to thinkNXG ERP Command Center",
 		"subtitle": "Your intelligent business operations command center.",
-		"docs_url": f"{DOCS}/thinknxgerp", "filters": ["company", "branch", "fiscal_year", "date_range"],
+		"docs_url": DOCS["erp"], "filters": ["company", "branch", "fiscal_year", "date_range"],
 	},
 	"hr": {
 		"label": "HR Command Center", "short": "HR", "icon": "users-round",
 		"description": "Workforce, attendance, leave and people operations", "route": "/hr", "app": "hrms",
 		"title": "Welcome to thinkNXG HR Command Center",
 		"subtitle": "Your intelligent workforce management and people operations command center.",
-		"docs_url": f"{DOCS}/thinknxghr", "filters": ["company", "department", "branch", "date_range"],
+		"docs_url": DOCS["hr"], "filters": ["company", "department", "branch", "date_range"],
 	},
 }
 

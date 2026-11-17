@@ -55,7 +55,7 @@ async function saveProfile() {
 					<span v-else class="flex h-9 w-9 items-center justify-center rounded-nxg bg-nxg-surface-2"><Icon name="blocks" :size="17" /></span>
 					<span class="min-w-0 flex-1">
 						<span class="flex items-center gap-2"><span class="truncate text-[14.5px] font-semibold">{{ a.title }}</span><code class="text-[11.5px] text-nxg-text-3">{{ a.name }}</code></span>
-						<span class="block truncate text-[12.5px] text-nxg-text-2">{{ a.description || a.publisher }}</span>
+						<span class="block truncate text-[12.5px] text-nxg-text-2">{{ a.description || a.publisher }}<template v-if="a.docs_url"> · <a :href="a.docs_url" target="_blank" rel="noopener" class="hover:underline" @click.stop>Documentation</a></template></span>
 					</span>
 					<span class="hidden text-right text-[12px] text-nxg-text-2 sm:block"><span class="nxg-tnum block font-medium text-nxg-text">{{ a.version || "—" }}</span>{{ a.branch || "" }}</span>
 					<span class="nxg-tnum hidden w-24 text-right text-[12px] text-nxg-text-2 md:block">{{ a.modules.length }} module{{ a.modules.length === 1 ? "" : "s" }}<br />{{ a.icons.total - a.icons.hidden }}/{{ a.icons.total }} icons shown</span>

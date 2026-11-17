@@ -82,3 +82,19 @@ class TestInternalRoutes(IntegrationTestCase):
 		request_cache("_nxg_test_cache")["k"] = 1
 		self.assertEqual(request_cache("_nxg_test_cache"), {"k": 1})
 		self.assertTrue(routes.internal_route("ToDo").startswith("/thinknxg/"))
+
+	def test_resolve_doctype_returns_stored_name(self):
+		# Lookups ignore case: "workspace" must come back as "Workspace", or
+		# frappe.new_doc cannot import the controller (ImportError: workspace).
+		self.assertEqual(docs.resolve_doctype("workspace"), "Workspace")
+		self.assertEqual(docs.resolve_doctype("todo"), "ToDo")
+		self.assertEqual(docs.resolve_doctype("error-log"), "Error Log")
+		self.assertEqual(docs.get_new_doc("workspace").get("doctype"), "Workspace")
+
+	def test_rebrand(self):
+		from thinknxg_admin.api.brand import app_title, rebrand
+
+		self.assertEqual(rebrand("Frappe HR"), "thinkNXG HR")
+		self.assertEqual(rebrand("Frappe Cloud Marketplace"), "thinkNXG Cloud Marketplace")
+		self.assertEqual(rebrand("frappe.client"), "frappe.client")
+		self.assertEqual(app_title("helpdesk", "Helpdesk"), "thinkDesk")

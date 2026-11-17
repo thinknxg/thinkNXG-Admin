@@ -9,6 +9,8 @@ Distinguishes four things the UI must never blur:
 
 import frappe
 
+from thinknxg_admin.api.brand import APP_DOCS, app_title, rebrand
+
 from thinknxg_admin.api.users import _parse_list
 from thinknxg_admin.api.utils import doctype_exists, require_admin
 
@@ -55,9 +57,10 @@ def get_apps():
 		app_icons = icons.get(app, [])
 		apps.append({
 			"name": app,
-			"title": (hooks.get("app_title") or [app])[0],
-			"publisher": (hooks.get("app_publisher") or [""])[0],
-			"description": (hooks.get("app_description") or [""])[0],
+			"title": app_title(app, (hooks.get("app_title") or [app])[0]),
+			"publisher": rebrand((hooks.get("app_publisher") or [""])[0]),
+			"description": rebrand((hooks.get("app_description") or [""])[0]),
+			"docs_url": APP_DOCS.get(app),
 			"version": v.get("version") or meta.get("app_version"),
 			"branch": v.get("branch") or meta.get("git_branch"),
 			"logo": v.get("logo") or (hooks.get("app_logo_url") or [None])[0],

@@ -3,6 +3,7 @@
 
 import frappe
 
+from thinknxg_admin.api.brand import rebrand
 from thinknxg_admin.api.utils import desk_route, doctype_exists, require_login
 
 # Unified categories, decided on the server from each notification's document
@@ -64,7 +65,7 @@ def get_notifications(limit: int = 20):
 		{
 			**r,
 			"category": category_of(r.document_type, sets),
-			"subject": frappe.utils.strip_html(r.subject or ""),
+			"subject": rebrand(frappe.utils.strip_html(r.subject or "")),
 			"from_name": names.get(r.from_user) or r.from_user,
 			"route": desk_route(r.document_type, r.document_name) if r.document_type and r.document_name else None,
 		}
@@ -117,7 +118,7 @@ def list_notifications(type: str | None = None, unread_only: int = 0, start: int
 	names = dict(frappe.get_all("User", filters={"name": ["in", list(senders)]}, fields=["name", "full_name"], as_list=True)) if senders else {}
 	images = dict(frappe.get_all("User", filters={"name": ["in", list(senders)]}, fields=["name", "user_image"], as_list=True)) if senders else {}
 	for r in rows:
-		r["subject"] = frappe.utils.strip_html(r.get("subject") or r.get("title") or "")
+		r["subject"] = rebrand(frappe.utils.strip_html(r.get("subject") or r.get("title") or ""))
 		r["from_name"] = names.get(r.from_user) or r.from_user
 		r["from_image"] = images.get(r.from_user)
 		r["route"] = _route(r)

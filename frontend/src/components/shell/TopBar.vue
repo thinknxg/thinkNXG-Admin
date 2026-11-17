@@ -179,7 +179,19 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 				<div class="mt-1 border-t border-nxg-border pt-1"><MenuItem label="Open Notification Center" href="/thinknxg/notifications" icon="inbox" /></div>
 			</NxgMenu>
 
-			<a :href="b.brand.docs_url" target="_blank" rel="noopener" class="nxg-icon-btn hidden sm:inline-flex" aria-label="Help and documentation" title="Help"><Icon name="circle-help" :size="17" /></a>
+			<!-- Help: the active center's docs first, then every thinkNXG product, support and cloud -->
+			<NxgMenu align="right" width="w-72" class="hidden sm:block">
+				<template #trigger="{ toggle }"><button class="nxg-icon-btn" aria-label="Help and documentation" title="Help" @click="toggle"><Icon name="circle-help" :size="17" /></button></template>
+				<div class="px-2 pb-1 pt-1.5 nxg-micro">Help</div>
+				<MenuItem v-if="activeCenter" :label="`${activeCenter.label} documentation`" :href="activeCenter.docs_url" icon="book-open" external />
+				<MenuItem label="thinkNXG Support (thinkDesk)" :href="b.brand.support_url" icon="life-buoy" external />
+				<div class="my-1 border-t border-nxg-border" />
+				<div class="px-2 pb-1 pt-1 nxg-micro">Documentation</div>
+				<MenuItem v-for="h in (b.brand.help || []).filter((x) => x.url !== activeCenter?.docs_url)" :key="h.key" :label="h.label" :href="h.url" icon="book-open" external />
+				<div class="my-1 border-t border-nxg-border" />
+				<MenuItem v-if="b.brand.cloud_url" label="thinkNXG Cloud" :href="b.brand.cloud_url" icon="external-link" external />
+				<MenuItem v-if="b.brand.insights_url" label="thinkNXG Insights" :href="b.brand.insights_url" icon="external-link" external />
+			</NxgMenu>
 
 			<NxgMenu align="right" width="w-40">
 				<template #trigger="{ toggle }">
