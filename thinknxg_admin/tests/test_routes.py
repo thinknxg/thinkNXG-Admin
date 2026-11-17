@@ -98,3 +98,19 @@ class TestInternalRoutes(IntegrationTestCase):
 		self.assertEqual(rebrand("Frappe Cloud Marketplace"), "thinkNXG Cloud Marketplace")
 		self.assertEqual(rebrand("frappe.client"), "frappe.client")
 		self.assertEqual(app_title("helpdesk", "Helpdesk"), "thinkDesk")
+
+
+class TestBrandImages(IntegrationTestCase):
+	def test_stock_detection(self):
+		from thinknxg_admin.install import _is_stock
+
+		self.assertTrue(_is_stock(None))
+		self.assertTrue(_is_stock("/assets/frappe/images/thinkNXG-favicon.png"))
+		self.assertFalse(_is_stock("/files/company-logo.png"))
+
+	def test_apply_sets_navbar_logo(self):
+		from thinknxg_admin.install import LOGO, apply_brand_images
+
+		frappe.db.set_single_value("Navbar Settings", "app_logo", None)
+		apply_brand_images()
+		self.assertEqual(frappe.db.get_single_value("Navbar Settings", "app_logo"), LOGO)

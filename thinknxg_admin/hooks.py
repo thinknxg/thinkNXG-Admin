@@ -6,6 +6,7 @@ app_email = "sales@kreatao.com"
 app_license = "mit"
 # The official mark ships with thinkNXG Core, so it exists on every thinkNXG site.
 app_logo_url = "/assets/thinknxg_admin/images/brand/thinknxg-logo.png"
+after_install = "thinknxg_admin.install.after_install"
 
 # ERP and HR are optional: every ERP/HR-specific query is guarded.
 required_apps = ["frappe"]

@@ -1,5 +1,14 @@
 # Changelog
 
+## 16.5.4 — 18 November 2026
+
+### Changed
+- The classic Desk and website now use the thinkNXG images too. On install, and once on migrate
+  (patch `v16_5.set_brand_images`), the app sets Website Settings → Favicon, App Logo and Splash
+  Image, and Navbar Settings → App Logo, to the images in `public/images/brand/`. A field is only
+  changed when it is empty or still holds a stock framework image, so a logo an administrator
+  uploaded is kept. `thinknxg_admin.install.apply_brand_images(force=True)` overrides that.
+
 ## 16.5.3 — 18 November 2026
 
 ### Fixed
