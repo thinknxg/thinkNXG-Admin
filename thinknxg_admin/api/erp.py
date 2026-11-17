@@ -466,7 +466,9 @@ def get_pending(company=None):
 
 def app_doctypes(app: str) -> set[str]:
 	"""Non-child DocTypes that belong to one installed app (cached per request)."""
-	cache = frappe.local.__dict__.setdefault("_nxg_app_doctypes", {})
+	from thinknxg_admin.api.utils import request_cache
+
+	cache = request_cache("_nxg_app_doctypes")
 	if app not in cache:
 		modules = frappe.get_all("Module Def", filters={"app_name": app}, pluck="name")
 		cache[app] = set(frappe.get_all("DocType", filters={"module": ["in", modules or [""]], "istable": 0}, pluck="name"))

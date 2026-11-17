@@ -20,7 +20,7 @@ from urllib.parse import quote, urlencode
 
 import frappe
 
-from thinknxg_admin.api.utils import doctype_exists
+from thinknxg_admin.api.utils import doctype_exists, request_cache
 
 BASE = "/thinknxg"
 
@@ -130,7 +130,7 @@ def slug(doctype: str) -> str:
 
 
 def _app_of(doctype: str) -> str | None:
-	cache = frappe.local.__dict__.setdefault("_nxg_doctype_app", {})
+	cache = request_cache("_nxg_doctype_app")
 	if doctype not in cache:
 		module = frappe.db.get_value("DocType", doctype, "module")
 		cache[doctype] = frappe.db.get_value("Module Def", module, "app_name") if module else None
@@ -139,15 +139,13 @@ def _app_of(doctype: str) -> str | None:
 
 def _index() -> dict:
 	"""DocType -> (center, module) for the first module that lists it."""
-	idx = frappe.local.__dict__.get("_nxg_route_index")
-	if idx is None:
-		idx = {}
+	idx = request_cache("_nxg_route_index")
+	if not idx:
 		for center, modules in MODULES.items():
 			for m in modules:
 				for _label, doctypes in m["groups"]:
 					for dt in doctypes:
 						idx.setdefault(dt, (center, m["key"]))
-		frappe.local._nxg_route_index = idx
 	return idx
 
 

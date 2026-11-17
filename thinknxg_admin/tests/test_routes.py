@@ -75,3 +75,10 @@ class TestInternalRoutes(IntegrationTestCase):
 	def test_list_filters_only_on_readable_fields(self):
 		clean = docs._clean_filters("ToDo", [["password", "=", "x"], ["status", "=", "Open"], ["status", "; drop", "x"]])
 		self.assertEqual(clean, [["ToDo", "status", "=", "Open"]])
+
+	def test_request_cache_on_frappe_local(self):
+		from thinknxg_admin.api.utils import request_cache
+
+		request_cache("_nxg_test_cache")["k"] = 1
+		self.assertEqual(request_cache("_nxg_test_cache"), {"k": 1})
+		self.assertTrue(routes.internal_route("ToDo").startswith("/thinknxg/"))

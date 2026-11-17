@@ -104,3 +104,13 @@ def delta(current, previous):
 	if current is None or previous in (None, 0):
 		return None
 	return round((current - previous) * 100.0 / previous, 1)
+
+
+def request_cache(key: str, default_factory=dict):
+	"""A per-request cache on frappe.local (a werkzeug Local: no __dict__, so
+	use getattr/setattr). Cleared automatically at the end of every request."""
+	value = getattr(frappe.local, key, None)
+	if value is None:
+		value = default_factory()
+		setattr(frappe.local, key, value)
+	return value

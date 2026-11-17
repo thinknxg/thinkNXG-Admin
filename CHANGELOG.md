@@ -1,5 +1,12 @@
 # Changelog
 
+## 16.5.1 — 17 November 2026
+
+### Fixed
+- `/thinknxg` failed to open with `AttributeError: __dict__`: per-request caches used
+  `frappe.local.__dict__`, which the framework's `Local` object does not have. They now use
+  `request_cache()` (getattr/setattr on `frappe.local`).
+
 ## 16.5.0 — 16 November 2026
 
 Complete internal navigation: ERP and HR modules, documents and reports open inside their command
